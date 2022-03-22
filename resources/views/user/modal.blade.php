@@ -29,7 +29,7 @@
                                 <option value="2">Female</option>
                                 <option value="3">Other</option>
                             </x-form.selectbox>
-                            <x-form.selectbox labelName="Role" name="role_id" required="required" col="col-md-6" class="selectpicker">
+                            <x-form.selectbox labelName="Role" name="role_id" onchange="setWarehouse(this.value)" required="required" col="col-md-6" class="selectpicker">
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->id }}">{{ $role->role_name }}</option>
                                 @endforeach
@@ -64,6 +64,13 @@
                                 </div>
                             </div>
                             <x-form.selectbox labelName="Control By" name="parent_id" required="required" col="col-md-6" class="selectpicker"/>
+                            <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required" col="col-md-6 warehouse d-none" class="selectpicker">
+                                @if (!$warehouses->isEmpty())
+                                  @foreach ($warehouses as $value)
+                                  <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                  @endforeach
+                              @endif
+                            </x-form.selectbox>
                         </div>
                     </div>
                     <div class="col-md-3">

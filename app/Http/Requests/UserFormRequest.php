@@ -41,6 +41,10 @@ class UserFormRequest extends FormRequest
             $this->rules['password'][0]              = 'nullable';
             $this->rules['password_confirmation'][0] = 'nullable';
         }
+        if(!empty(request()->role_id) && request()->role_id != 2)
+        {
+            $this->rules['warehouse_id']                = ['required'];
+        }
 
         return $this->rules;
     }

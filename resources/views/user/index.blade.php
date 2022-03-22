@@ -41,13 +41,19 @@
                                 <option value="{{ $role->id }}">{{ $role->role_name }}</option>
                             @endforeach
                         </x-form.selectbox>
+                        <x-form.selectbox labelName="Showroom" name="warehouse_id" col="col-md-3" class="selectpicker">
+                            @if (!$warehouses->isEmpty())
+                            @foreach ($warehouses as $value)
+                                <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                @endforeach
+                            @endif
+                        </x-form.selectbox>
                         <x-form.selectbox labelName="Status" name="status" col="col-md-3" class="selectpicker">
                             <option value="1">Active</option>
                             <option value="2">Inactive</option>
                         </x-form.selectbox>
-                        <div class="col-md-6">
-                            <div style="margin-top:28px;">    
-                                <div style="margin-top:28px;">    
+                        <div class="col-md-3">
+                            <div style="margin-top:28px;">     
                                     <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
                                     <i class="fas fa-undo-alt"></i></button>
@@ -55,7 +61,6 @@
                                     <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Search">
                                     <i class="fas fa-search"></i></button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -82,6 +87,7 @@
                                         <th>User</th>
                                         <th>Username</th>
                                         <th>Role</th>
+                                        <th>Warehosue</th>
                                         <th>Control By</th>
                                         <th>Status</th>
                                         <th>Created By</th>
@@ -145,9 +151,9 @@ $(document).ready(function(){
         },
         "columnDefs": [{
             @if (permission('user-bulk-delete'))
-            "targets": [0,10],
+            "targets": [0,11],
             @else
-            "targets": [9],
+            "targets": [10],
             @endif
                 
                 "orderable": false,
@@ -155,9 +161,9 @@ $(document).ready(function(){
             },
             {
                 @if (permission('user-bulk-delete'))
-                "targets": [1,2,7,8,9],
+                "targets": [1,2,8,9,10],
                 @else
-                "targets": [0,1,6,7,8],
+                "targets": [0,1,7,8,9],
                 @endif
                 
                 "className": "text-center"
@@ -181,9 +187,9 @@ $(document).ready(function(){
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     },
                     customize: function (win) {
@@ -202,10 +208,10 @@ $(document).ready(function(){
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                         @if(permission('sale-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     }
                 },
@@ -216,10 +222,10 @@ $(document).ready(function(){
                     "title": "{{ $page_title }} List",
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
-                        @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                         @if(permission('sale-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     }
                 },
@@ -232,10 +238,10 @@ $(document).ready(function(){
                     "orientation": "landscape", //portrait
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
-                        @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                         @if(permission('sale-bulk-delete'))
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -365,6 +371,7 @@ $(document).ready(function(){
                     if(data.status == 'error'){
                         notification(data.status,data.message)
                     }else{
+                        setWarehouse(data.role_id);
                         $('#store_or_update_form #update_id').val(data.id);
                         $('#store_or_update_form #name').val(data.name);
                         $('#store_or_update_form #username').val(data.username);
@@ -375,6 +382,13 @@ $(document).ready(function(){
                         $('#store_or_update_form .selectpicker').selectpicker('refresh');
                         $('#password, #password_confirmation').parents('.form-group').removeClass('required');
                         $('#store_or_update_form #old_avatar').val(data.avatar);
+                        
+                        if(data.warehouse_id){
+                            $('#store_or_update_form #warehouse_id').val(data.warehouse_id);
+                        }else{
+                            $('#store_or_update_form #warehouse_id').val('');
+                        }
+                        
                         getUserList(data.parent_id);
                         if(data.avatar)
                         {
@@ -475,6 +489,10 @@ $(document).ready(function(){
         }
     });
 });
+function setWarehouse(value)
+{
+    (value == 2) ? $('#store_or_update_form .warehouse').addClass('d-none') : $('#store_or_update_form .warehouse').removeClass('d-none');
+}
 getUserList();
 function getUserList(user_id='')
 {
@@ -499,12 +517,17 @@ function showUserFormModal(modal_title, btn_text) {
     $('#store_or_update_form #update_id').val('');
     $('#store_or_update_form').find('.is-invalid').removeClass('is-invalid');
     $('#store_or_update_form').find('.error').remove();
+    $('#store_or_update_form .warehouse').addClass('d-none');
     $('#password, #password_confirmation').parents('.form-group').addClass('required');
     $('#store_or_update_form .selectpicker').selectpicker('refresh');
     $('#store_or_update_modal').modal({
         keyboard: false,
         backdrop: 'static',
     });
+    $('#avatar img').css('display','block');
+    $('#avatar .spartan_remove_row').css('display','none');
+    $('#avatar .img_').css('display','none');
+    $('#avatar .img_').attr('src','');
     $('#store_or_update_modal .modal-title').html('<i class="fas fa-plus-square text-white"></i> '+modal_title);
     $('#store_or_update_modal #save-btn').text(btn_text);
 }

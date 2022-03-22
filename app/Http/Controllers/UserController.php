@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
+use App\Traits\UploadAble;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserFormRequest;
+use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
-use App\Models\Role;
-use App\Traits\UploadAble;
 
 class UserController extends BaseController
 {
@@ -24,6 +25,7 @@ class UserController extends BaseController
             $data = [
                 'roles'     => Role::toBase()->where('id','!=',1)->orderBy('id','asc')->get(),
                 'deletable' => self::DELETABLE,
+                'warehouses' => Warehouse::allWarehouses(),
             ];
             return view('user.index',$data);
         }else{
@@ -52,7 +54,9 @@ class UserController extends BaseController
             if (!empty($request->status)) {
                 $this->model->setStatus($request->status);
             }
-
+            if (!empty($request->warehouse_id)) {
+                $this->model->setWarehouseID($request->warehouse_id);
+            }
             $this->set_datatable_default_properties($request);//set datatable default properties
             $list = $this->model->getDatatableList();//get table data
             $data = [];
@@ -81,6 +85,7 @@ class UserController extends BaseController
                 $row[] = $value->name.'<br><b>Phone No.:</b>'.$value->phone.($value->email ? '<br><b>Email:</b>'.$value->email : '').'<br><b>Gender:</b>'.GENDER[$value->gender];
                 $row[] = $value->username;
                 $row[] = $value->role->role_name;
+                $row[] = $value->warehouse->name;
                 $row[] = $value->parent->name;
                 $row[] = permission('user-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                 $row[] = $value->created_by;
