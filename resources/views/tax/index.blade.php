@@ -17,7 +17,7 @@
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
-                    @if (permission('tax-add'))
+                    @if (permission('vat-add'))
                     <a href="javascript:void(0);" onclick="showFormModal('Add New Tax','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
@@ -56,7 +56,7 @@
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
-                                        @if (permission('tax-bulk-delete'))
+                                        @if (permission('vat-bulk-delete'))
                                         <th>
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="select_all" onchange="select_all()">
@@ -114,7 +114,7 @@
                 zeroRecords: '<strong class="text-danger">No Data Found</strong>'
             },
             "ajax": {
-                "url": "{{route('tax.datatable.data')}}",
+                "url": "{{route('vat.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
                     data.name = $("#form-filter #name").val();
@@ -122,7 +122,7 @@
                 }
             },
             "columnDefs": [{
-                    @if (permission('tax-bulk-delete'))
+                    @if (permission('vat-bulk-delete'))
                     "targets": [0,9],
                     @else 
                     "targets": [8],
@@ -131,7 +131,7 @@
                     "className": "text-center"
                 },
                 {
-                    @if (permission('tax-bulk-delete'))
+                    @if (permission('vat-bulk-delete'))
                     "targets": [1,2,3,4,5,6,8],
                     @else 
                     "targets": [0,1,2,3,4,5,6,7],
@@ -144,7 +144,7 @@
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'<'float-right'p>>>",
     
             "buttons": [
-                @if (permission('tax-report'))
+                @if (permission('vat-report'))
                 {
                     'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
                 },
@@ -203,7 +203,7 @@
                     },
                 },
                 @endif 
-                @if (permission('tax-bulk-delete'))
+                @if (permission('vat-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
                     'text':'Delete',
@@ -227,7 +227,7 @@
         $(document).on('click', '#save-btn', function () {
             let form = document.getElementById('store_or_update_form');
             let formData = new FormData(form);
-            let url = "{{route('tax.store.or.update')}}";
+            let url = "{{route('vat.store.or.update')}}";
             let id = $('#update_id').val();
             let method;
             if (id) {
@@ -292,7 +292,7 @@
             $('#store_or_update_form').find('.error').remove();
             if (id) {
                 $.ajax({
-                    url: "{{route('tax.edit')}}",
+                    url: "{{route('vat.edit')}}",
                     type: "POST",
                     data: { id: id,_token: _token},
                     dataType: "JSON",
@@ -324,7 +324,7 @@
             let id    = $(this).data('id');
             let name  = $(this).data('name');
             let row   = table.row($(this).parent('tr'));
-            let url   = "{{ route('tax.delete') }}";
+            let url   = "{{ route('vat.delete') }}";
             delete_data(id, url, table, row, name);
         });
     
@@ -343,7 +343,7 @@
                     icon: 'warning',
                 });
             }else{
-                let url = "{{route('tax.bulk.delete')}}";
+                let url = "{{route('vat.bulk.delete')}}";
                 bulk_delete(ids,url,table,rows);
             }
         }
@@ -353,7 +353,7 @@
             let name   = $(this).data('name');
             let status = $(this).data('status');
             let row    = table.row($(this).parent('tr'));
-            let url    = "{{ route('tax.change.status') }}";
+            let url    = "{{ route('vat.change.status') }}";
             change_status(id, url, table, row, name, status);
         });
     

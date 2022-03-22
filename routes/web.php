@@ -126,15 +126,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('populate-unit/{id}','UnitController@populate_unit');
 
 
-    //Tax Routes
-    Route::get('tax', 'TaxController@index')->name('tax');
-    Route::group(['prefix' => 'tax', 'as'=>'tax.'], function () {
-        Route::post('datatable-data', 'TaxController@get_datatable_data')->name('datatable.data');
-        Route::post('store-or-update', 'TaxController@store_or_update_data')->name('store.or.update');
-        Route::post('edit', 'TaxController@edit')->name('edit');
-        Route::post('delete', 'TaxController@delete')->name('delete');
-        Route::post('bulk-delete', 'TaxController@bulk_delete')->name('bulk.delete');
-        Route::post('change-status', 'TaxController@change_status')->name('change.status');
+    //Vat Routes
+    Route::get('vat', 'VatController@index')->name('vat');
+    Route::group(['prefix' => 'vat', 'as'=>'vat.'], function () {
+        Route::post('datatable-data', 'VatController@get_datatable_data')->name('datatable.data');
+        Route::post('store-or-update', 'VatController@store_or_update_data')->name('store.or.update');
+        Route::post('edit', 'VatController@edit')->name('edit');
+        Route::post('delete', 'VatController@delete')->name('delete');
+        Route::post('bulk-delete', 'VatController@bulk_delete')->name('bulk.delete');
+        Route::post('change-status', 'VatController@change_status')->name('change.status');
     });
 
 });
