@@ -1,0 +1,13 @@
+{
+    "name": "StockLedger",
+    "alias": "stockledger",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\StockLedger\\Providers\\StockLedgerServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

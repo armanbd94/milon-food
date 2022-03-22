@@ -1,0 +1,13 @@
+{
+    "name": "ASM",
+    "alias": "asm",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ASM\\Providers\\ASMServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

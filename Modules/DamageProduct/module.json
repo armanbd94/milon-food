@@ -1,0 +1,13 @@
+{
+    "name": "DamageProduct",
+    "alias": "damageproduct",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\DamageProduct\\Providers\\DamageProductServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
