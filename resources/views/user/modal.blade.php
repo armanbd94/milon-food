@@ -1,5 +1,5 @@
 <div class="modal fade" id="store_or_update_modal" tabindex="-1" role="dialog" aria-labelledby="model-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
 
       <!-- Modal Content -->
       <div class="modal-content">
@@ -17,49 +17,68 @@
             <!-- Modal Body -->
             <div class="modal-body">
                 <div class="row">
-                    <input type="hidden" name="update_id" id="update_id"/>
-                    <x-form.textbox labelName="Name" name="name" required="required" col="col-md-6" placeholder="Enter name"/>
-                    <x-form.textbox labelName="Username" name="username" required="required" col="col-md-6" placeholder="Enter username"/>
-                    <x-form.textbox labelName="Phone No." name="phone" required="required" col="col-md-6" placeholder="Enter phone number"/>
-                    <x-form.textbox labelName="Email" name="email" col="col-md-6" placeholder="Enter email"/>
-                    <x-form.selectbox labelName="Gender" name="gender" required="required" col="col-md-6" class="selectpicker">
-                        <option value="1">Male</option>
-                        <option value="2">Female</option>
-                        <option value="3">Other</option>
-                    </x-form.selectbox>
-                    <x-form.selectbox labelName="Role" name="role_id" required="required" col="col-md-6" class="selectpicker">
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->id }}">{{ $role->role_name }}</option>
-                        @endforeach
-                    </x-form.selectbox>
-                    <div class="col-md-6 form-group">
-                        <label for="site_title">Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control bg-brand" name="password" id="password">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-warning" id="generate_password" style="border:0;cursor: pointer;" data-toggle="tooltip" data-theme="dark" title="Generate Password">
-                                    <i class="fas fa-lock text-white"></i>
-                                </span>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <input type="hidden" name="update_id" id="update_id"/>
+                            <x-form.textbox labelName="Name" name="name" required="required" col="col-md-6" placeholder="Enter name"/>
+                            <x-form.textbox labelName="Username" name="username" required="required" col="col-md-6" placeholder="Enter username"/>
+                            <x-form.textbox labelName="Phone No." name="phone" required="required" col="col-md-6" placeholder="Enter phone number"/>
+                            <x-form.textbox labelName="Email" name="email" col="col-md-6" placeholder="Enter email"/>
+                            <x-form.selectbox labelName="Gender" name="gender" required="required" col="col-md-6" class="selectpicker">
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+                                <option value="3">Other</option>
+                            </x-form.selectbox>
+                            <x-form.selectbox labelName="Role" name="role_id" required="required" col="col-md-6" class="selectpicker">
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->id }}">{{ $role->role_name }}</option>
+                                @endforeach
+                            </x-form.selectbox>
+                            
+                            <div class="col-md-6 form-group">
+                                <label for="site_title">Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control bg-brand" name="password" id="password">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-warning" id="generate_password" style="border:0;cursor: pointer;" data-toggle="tooltip" data-theme="dark" title="Generate Password">
+                                            <i class="fas fa-lock text-white"></i>
+                                        </span>
+                                    </div>
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-primary" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
+                                            <i class="fas fa-eye toggle-password text-white" toggle="#password" style="cursor: pointer;"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-primary" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
-                                    <i class="fas fa-eye toggle-password text-white" toggle="#password" style="cursor: pointer;"></i>
-                                </span>
+                
+                            <div class="col-md-6 form-group">
+                                <label for="site_title">Confirm Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control bg-brand" name="password_confirmation" id="password_confirmation">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-primary" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
+                                            <i class="fas fa-eye toggle-password text-white" toggle="#password_confirmation" style="cursor: pointer;"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+                            <x-form.selectbox labelName="Control By" name="parent_id" required="required" col="col-md-6" class="selectpicker"/>
                         </div>
                     </div>
-        
-                    <div class="col-md-6 form-group">
-                        <label for="site_title">Confirm Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control bg-brand" name="password_confirmation" id="password_confirmation">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-primary" style="border-top-right-radius: 0.42rem;border-bottom-right-radius: 0.42rem;border:0;">
-                                    <i class="fas fa-eye toggle-password text-white" toggle="#password_confirmation" style="cursor: pointer;"></i>
-                                </span>
+                    <div class="col-md-3">
+                        <div class="form-group col-md-12 mb-0 text-center">
+                            <label for="logo" class="form-control-label">User Image</label>
+                            <div class="col=md-12 px-0  text-center">
+                                <div id="avatar">
+                
+                                </div>
                             </div>
+                            <div class="text-center"><span class="text-muted">Maximum Allowed File Size 2MB and Format (png,jpg,jpeg,svg,webp)</span></div>
+                            <input type="hidden" name="old_avatar" id="old_avatar">
                         </div>
                     </div>
+                    
                 </div>
             </div>
             <!-- /modal body -->

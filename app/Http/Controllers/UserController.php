@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use App\Http\Requests\UserFormRequest;
 use App\Http\Controllers\BaseController;
 use App\Models\Role;
+use App\Traits\UploadAble;
 
 class UserController extends BaseController
 {
+    use UploadAble;
     public function __construct(User $model)
     {
         $this->model = $model;
@@ -21,7 +23,7 @@ class UserController extends BaseController
             $this->setPageData('User','User','fas fa-users',[['name' => 'User']]);
             $data = [
                 'roles'     => Role::toBase()->where('id','!=',1)->orderBy('id','asc')->get(),
-                'deletable' => self::DELETABLE
+                'deletable' => self::DELETABLE,
             ];
             return view('user.index',$data);
         }else{
@@ -70,24 +72,19 @@ class UserController extends BaseController
                     }
                 }
 
-
                 $row = [];
                 if(permission('user-bulk-delete')){
                     $row[] = ($value->deletable == 2) ? row_checkbox($value->id) : '';//custom helper function to show the table each row checkbox
                 }
                 $row[] = $no;
                 $row[] = $this->table_image(USER_PHOTO_PATH,$value->avatar,$value->name,$value->gender);
-                $row[] = $value->name;
+                $row[] = $value->name.'<br><b>Phone No.:</b>'.$value->phone.($value->email ? '<br><b>Email:</b>'.$value->email : '').'<br><b>Gender:</b>'.GENDER[$value->gender];
                 $row[] = $value->username;
                 $row[] = $value->role->role_name;
-                $row[] = $value->phone;
-                $row[] = $value->email ? $value->email : '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">No Email</span>';
-                $row[] = GENDER_LABEL[$value->gender];
+                $row[] = $value->parent->name;
                 $row[] = permission('user-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                 $row[] = $value->created_by;
-                $row[] = $value->modified_by ?? '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">Not Modified Yet</span>';
                 $row[] = $value->created_at ? date(config('settings.date_format'),strtotime($value->created_at)) : '';
-                $row[] = $value->modified_by ? date(config('settings.date_format'),strtotime($value->updated_at)) : '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">No Update Date</span>';
                 $row[] = action_button($action);//custom helper function for action button
                 $data[] = $row;
             }
@@ -102,11 +99,19 @@ class UserController extends BaseController
     {
         if($request->ajax()){
             if(permission('user-add') || permission('user-edit')){
-                $collection   = collect($request->validated())->except('password','password_confirmation');
+                $collection   = collect($request->validated())->except('password','password_confirmation','avatar');
                 $collection   = $this->track_data($collection,$request->update_id);
                 if(!empty($request->password)){
                 $collection   = $collection->merge(['password'=>$request->password]);
                 }
+                $avatar = $request->old_avatar;
+                if($request->hasFile('avatar')){
+                    $avatar  = $this->upload_file($request->file('avatar'),USER_PHOTO_PATH);
+                    if(!empty($request->old_avatar)){
+                        $this->delete_file($request->old_avatar, USER_PHOTO_PATH);
+                    }  
+                }
+                $collection   = $collection->merge(compact('avatar'));
                 $result       = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
                 $output       = $this->store_message($result, $request->update_id);
             }else{
@@ -187,5 +192,12 @@ class UserController extends BaseController
         }else{
             return response()->json($this->unauthorized());
         }
+    }
+
+
+    public function user_list()
+    {
+        $users = User::user_html_list();
+        return $users;
     }
 }

@@ -278,6 +278,26 @@ $(document).ready(function(){
         table.ajax.reload();
     });
 
+    $("#avatar").spartanMultiImagePicker({
+        fieldName:        'avatar',
+        maxCount: 1,
+        rowHeight:        '200px',
+        groupClassName:   'col-md-12 col-sm-12 col-xs-12',
+        maxFileSize:      '',
+        dropFileLabel : "Drop Here",
+        allowedExt: 'png|jpg|jpeg',
+        onExtensionErr : function(index, file){
+            Swal.fire({icon: 'error',title: 'Oops...',text: 'Only png,jpg,jpeg file format allowed!'});
+        },
+
+    });
+
+    $("input[name='avatar']").prop('required',true);
+
+    $('.remove-files').on('click', function(){
+        $(this).parents(".col-md-12").remove();
+    });
+
     $(document).on('click', '#save-btn', function () {
         let form     = document.getElementById('store_or_update_form');
         let formData = new FormData(form);
@@ -476,25 +496,7 @@ $(document).ready(function(){
         }
     });
 
-    $("#avatar").spartanMultiImagePicker({
-        fieldName:        'avatar',
-        maxCount: 1,
-        rowHeight:        '200px',
-        groupClassName:   'col-md-12 col-sm-12 col-xs-12',
-        maxFileSize:      '',
-        dropFileLabel : "Drop Here",
-        allowedExt: 'png|jpg|jpeg',
-        onExtensionErr : function(index, file){
-            Swal.fire({icon: 'error',title: 'Oops...',text: 'Only png,jpg,jpeg file format allowed!'});
-        },
-
-    });
-
-    $("input[name='avatar']").prop('required',true);
-
-    $('.remove-files').on('click', function(){
-        $(this).parents(".col-md-12").remove();
-    });
+    
 
 
 });

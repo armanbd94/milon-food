@@ -32,6 +32,8 @@ class UserFormRequest extends FormRequest
         $this->rules['role_id']               = ['required', 'integer'];
         $this->rules['password']              = ['required', 'string', 'min:8', 'confirmed'];
         $this->rules['password_confirmation'] = ['required', 'string', 'min:8'];
+        $this->rules['parent_id']             = ['required'];
+        $this->rules['avatar']                = ['nullable','mimes:png,jpg,jpeg,webp,svg','max:2048'];
         if(request()->update_id){
             $this->rules['username'][3]              = 'unique:users,username,'.request()->update_id;
             $this->rules['phone'][3]                 = 'unique:users,phone,'.request()->update_id;
@@ -41,5 +43,12 @@ class UserFormRequest extends FormRequest
         }
 
         return $this->rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'parent_id.required' => 'The control by field is required'
+        ];
     }
 }

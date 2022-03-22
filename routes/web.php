@@ -92,6 +92,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('delete', 'UserController@delete')->name('delete');
         Route::post('bulk-delete', 'UserController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'UserController@change_status')->name('change.status');
+        Route::get('list', 'UserController@user_list')->name('list');
     });
 
     //Software Settings Route

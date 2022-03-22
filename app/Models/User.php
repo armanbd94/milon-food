@@ -7,14 +7,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use TypiCMS\NestableTrait;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
+    use Notifiable,NestableTrait;
 
 
     protected $fillable = [
-        'role_id','name','username','email','phone','avatar','gender','password','status','deletable','created_by','modified_by'
+        'parent_id','role_id','name','username','email','phone','avatar','gender','password','status','deletable','created_by','modified_by'
     ];
 
     protected $hidden = [
@@ -22,6 +23,20 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',  
     ];
 
+    public function parent(){
+        return $this->belongsTo(User::class,'parent_id','id')->withDefault(['name'=>'']);
+    }
+
+    public static function user_list(){
+        $users = self::orderBy('id','asc')
+        ->where('id','!=',1)
+        ->get()
+        ->nest()
+        ->setIndent('-- ')
+        ->listsFlattened('name');
+
+        return $users;
+    }
     
     // Rest omitted for brevity
 
@@ -88,67 +103,75 @@ class User extends Authenticatable implements JWTSubject
         $this->lengthVlaue = $lengthVlaue;
     }
 
-    protected $name;
-    protected $username;
-    protected $phone;
-    protected $email;
-    protected $role_id;
-    protected $status;
+    protected $_name;
+    protected $_username;
+    protected $_phone;
+    protected $_email;
+    protected $_role_id;
+    protected $_parent_id;
+    protected $_status;
 
     public function setName($name)
     {
-        $this->name = $name;
+        $this->_name = $name;
     }
     public function setUsername($username)
     {
-        $this->username = $username;
+        $this->_username = $username;
     }
     public function setPhone($phone)
     {
-        $this->phone = $phone;
+        $this->_phone = $phone;
     }
     public function setEmail($email)
     {
-        $this->email = $email;
+        $this->_email = $email;
     }
     public function setRoleID($role_id)
     {
-        $this->role_id = $role_id;
+        $this->_role_id = $role_id;
+    }
+    public function setParentID($parent_id)
+    {
+        $this->_parent_id = $parent_id;
     }
     public function setStatus($status)
     {
-        $this->status = $status;
+        $this->_status = $status;
     }
 
 
     private function get_datatable_query()
     { 
         if (permission('user-bulk-delete')){
-            $this->column_order = [null,'id','id','name','username','role_id','phone','email','gender','status','created_by','modified_by','created_at','updated_at',null];
+            $this->column_order = [null,'id','id','name','username','role_id','parent_id','status','created_by','created_at',null];
         }else{
-            $this->column_order = ['id','id','name','username','role_id','phone','email','gender','status','created_by','modified_by','created_at','updated_at',null];
+            $this->column_order = ['id','id','name','username','role_id','parent_id','status','created_by','created_at',null];
         }
         
 
-        $query = self::with('role:id,role_name')->where('id','!=',1);
+        $query = self::with('role:id,role_name','parent:id,name')->where('id','!=',1);
 
-        if (!empty($this->name)) {
-            $query->where('name', 'like', '%' . $this->name . '%');
+        if (!empty($this->_name)) {
+            $query->where('name', 'like', '%' . $this->_name . '%');
         }
-        if (!empty($this->username)) {
-            $query->where('username', 'like', '%' . $this->username . '%');
+        if (!empty($this->_username)) {
+            $query->where('username', 'like', '%' . $this->_username . '%');
         }
-        if (!empty($this->phone)) {
-            $query->where('phone', 'like', '%' . $this->phone . '%');
+        if (!empty($this->_phone)) {
+            $query->where('phone', 'like', '%' . $this->_phone . '%');
         }
-        if (!empty($this->email)) {
-            $query->where('email', 'like', '%' . $this->email . '%');
+        if (!empty($this->_email)) {
+            $query->where('email', 'like', '%' . $this->_email . '%');
         }
-        if (!empty($this->role_id)) {
-            $query->where('role_id', $this->role_id );
+        if (!empty($this->_role_id)) {
+            $query->where('role_id', $this->_role_id );
         }
-        if (!empty($this->status)) {
-            $query->where('status', $this->status );
+        if (!empty($this->_parent_id)) {
+            $query->where('parent_id', $this->_parent_id );
+        }
+        if (!empty($this->_status)) {
+            $query->where('status', $this->_status );
         }
 
         if (isset($this->orderValue) && isset($this->dirValue)) {
@@ -181,5 +204,37 @@ class User extends Authenticatable implements JWTSubject
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+
+    public static function user_html_list()
+    {
+        $users = '';
+        $users .= (new self)->user_html_data(0);
+        return $users;
+    }
+
+    private function user_html_data($parent_id=0,$level = 0)
+    {
+        $user = '';
+        if($parent_id == 0){
+            $users = self::with('role')->where([['parent_id', 0],['id','!=',1]])->orderBy('id','asc')->get(); //get user list whose parent id is 0
+        }else{
+            $users = self::with('role')->where([['parent_id',$parent_id],['id','!=',1]])->orderBy('id','asc')->get(); //get user list whose parent id is the given id
+        }
+        if(!$users->isEmpty()){
+            foreach ($users as $value) {
+                if($value->parent_id == 0)
+                {
+                    $user .= "<option value='$value->id'>".$value->name." (".$value->role->role_name.")";
+                    $user .= $this->user_html_data($value->id,$level+1);
+                    $user .= "</option>";
+                }else{
+                    $user .= "<option value='$value->id'>".str_repeat("&#9866;", $level)." ".$value->name." (".$value->role->role_name.")";
+                    $user .= $this->user_html_data($value->id,$level+1);
+                    $user .= "</option>";
+                }
+            }
+        }
+        return $user;
+    }
 
 }

@@ -79,17 +79,13 @@
                                         @endif
                                         <th>Sl</th>
                                         <th>Avatar</th>
-                                        <th>Name</th>
+                                        <th>User</th>
                                         <th>Username</th>
                                         <th>Role</th>
-                                        <th>Phone No.</th>
-                                        <th>Email</th>
-                                        <th>Gender</th>
+                                        <th>Control By</th>
                                         <th>Status</th>
                                         <th>Created By</th>
-                                        <th>Modified By</th>
                                         <th>Created At</th>
-                                        <th>Updated At</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -110,8 +106,10 @@
 
 @push('scripts')
 <script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
+<script src="js/spartan-multi-image-picker.min.js"></script>
 <script>
 var table;
+$("#kt_body").addClass("aside-minimize");
 $(document).ready(function(){
 
     table = $('#dataTable').DataTable({
@@ -147,9 +145,9 @@ $(document).ready(function(){
         },
         "columnDefs": [{
             @if (permission('user-bulk-delete'))
-            "targets": [0,14],
+            "targets": [0,10],
             @else
-            "targets": [13],
+            "targets": [9],
             @endif
                 
                 "orderable": false,
@@ -157,9 +155,9 @@ $(document).ready(function(){
             },
             {
                 @if (permission('user-bulk-delete'))
-                "targets": [1,2,4,5,6,8,9,10,11,12,13],
+                "targets": [1,2,7,8,9],
                 @else
-                "targets": [0,1,2,4,5,6,8,9,10,11,12],
+                "targets": [0,1,6,7,8],
                 @endif
                 
                 "className": "text-center"
@@ -183,9 +181,9 @@ $(document).ready(function(){
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(14))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(13))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     },
                     customize: function (win) {
@@ -205,9 +203,9 @@ $(document).ready(function(){
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                         @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(14))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(13))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     }
                 },
@@ -219,9 +217,9 @@ $(document).ready(function(){
                     "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                     "exportOptions": {
                         @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(14))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(13))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     }
                 },
@@ -235,9 +233,9 @@ $(document).ready(function(){
                     "pageSize": "A4", //A3,A5,A6,legal,letter
                     "exportOptions": {
                         @if(permission('sale-bulk-delete'))
-                        columns: ':visible:not(:eq(0),:eq(14))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(13))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     },
                     customize: function(doc) {
@@ -267,6 +265,26 @@ $(document).ready(function(){
         $('#form-filter')[0].reset();
         $('#form-filter .selectpicker').selectpicker('refresh');
         table.ajax.reload();
+    });
+
+    $("#avatar").spartanMultiImagePicker({
+        fieldName:        'avatar',
+        maxCount: 1,
+        rowHeight:        '200px',
+        groupClassName:   'col-md-12 col-sm-12 col-xs-12',
+        maxFileSize:      '',
+        dropFileLabel : "Drop Here",
+        allowedExt: 'png|jpg|jpeg',
+        onExtensionErr : function(index, file){
+            Swal.fire({icon: 'error',title: 'Oops...',text: 'Only png,jpg,jpeg file format allowed!'});
+        },
+
+    });
+
+    $("input[name='avatar']").prop('required',true);
+
+    $('.remove-files').on('click', function(){
+        $(this).parents(".col-md-12").remove();
     });
 
     $(document).on('click', '#save-btn', function () {
@@ -323,7 +341,7 @@ $(document).ready(function(){
                         $('#store_or_update_modal').modal('hide');
                     }
                 }
-
+                getUserList();
             },
             error: function (xhr, ajaxOption, thrownError) {
                 console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
@@ -356,6 +374,20 @@ $(document).ready(function(){
                         $('#store_or_update_form #role_id').val(data.role_id);
                         $('#store_or_update_form .selectpicker').selectpicker('refresh');
                         $('#password, #password_confirmation').parents('.form-group').removeClass('required');
+                        $('#store_or_update_form #old_avatar').val(data.avatar);
+                        getUserList(data.parent_id);
+                        if(data.avatar)
+                        {
+                            $('#avatar img').css('display','none');
+                            $('#avatar .spartan_remove_row').css('display','none');
+                            $('#avatar .img_').css('display','block');
+                            $('#avatar .img_').attr('src',"{{ asset('storage/'.SALESMEN_AVATAR_PATH)}}/"+data.avatar);
+                        }else{
+                            $('#avatar img').css('display','block');
+                            $('#avatar .spartan_remove_row').css('display','none');
+                            $('#avatar .img_').css('display','none');
+                            $('#avatar .img_').attr('src','');
+                        }
                         $('#store_or_update_modal').modal({
                             keyboard: false,
                             backdrop: 'static',
@@ -442,9 +474,26 @@ $(document).ready(function(){
             input.attr("type", "password");
         }
     });
-
-
 });
+getUserList();
+function getUserList(user_id='')
+{
+    $.ajax({
+        url:"{{ url('user/list') }}",
+        type:"GET",
+        success:function(data){
+            html = `<option value="0">Self</option>`;
+            html += data;
+            $('#store_or_update_form #parent_id').empty();
+            $('#store_or_update_form #parent_id').append(html);
+            $('.selectpicker').selectpicker('refresh');
+            if(user_id){
+                $('#store_or_update_form #parent_id').val(user_id);
+                $('#store_or_update_form #parent_id.selectpicker').selectpicker('refresh');
+            }
+        },
+    });
+}
 function showUserFormModal(modal_title, btn_text) {
     $('#store_or_update_form')[0].reset();
     $('#store_or_update_form #update_id').val('');
