@@ -60,7 +60,6 @@ class WarehouseController extends BaseController
                     $row[] = $no;
                     $row[] = $value->name;
                     $row[] = $value->district_name;
-                    $row[] = $value->asm_name;
                     $row[] = $value->phone;
                     $row[] = $value->email;
                     $row[] = $value->address;

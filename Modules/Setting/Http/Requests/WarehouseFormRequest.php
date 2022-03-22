@@ -28,7 +28,6 @@ class WarehouseFormRequest extends FormRequest
         $rules['email']     = ['nullable','email','string'];
         $rules['address']   = ['nullable','string'];
         $rules['district_id'] = ['required'];
-        $rules['asm_id'] = ['required'];
         $rules['deletable'] = ['required','integer'];
 
         if(request()->update_id)

@@ -13,7 +13,7 @@ use Modules\Product\Entities\WarehouseProduct;
 
 class Warehouse extends BaseModel
 {
-    protected $fillable = ['name', 'phone', 'email', 'address','district_id','asm_id', 'status', 'deletable', 'created_by', 'modified_by'];
+    protected $fillable = ['name', 'phone', 'email', 'address','district_id', 'status', 'deletable', 'created_by', 'modified_by'];
 
     public function materials()
     {
@@ -39,10 +39,6 @@ class Warehouse extends BaseModel
         return $this->belongsTo(District::class,'district_id','id');
     }
 
-    public function asm()
-    {
-        return $this->belongsTo(ASM::class,'asm_id','id');
-    }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
@@ -61,16 +57,15 @@ class Warehouse extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
         if (permission('warehouse-bulk-delete')){
-            $this->column_order = [null,'w.id','w.name','w.district_id','w.asm_id', 'w.phone','w.email','w.address','w.status',null];
+            $this->column_order = [null,'w.id','w.name','w.district_id', 'w.phone','w.email','w.address','w.status',null];
         }else{
-            $this->column_order = ['w.id','w.name','w.district_id','w.asm_id', 'w.phone','w.email','w.address','w.status',null];
+            $this->column_order = ['w.id','w.name','w.district_id', 'w.phone','w.email','w.address','w.status',null];
         }
         
         $query = DB::table('warehouses as w')
-                ->select('w.id','w.name', 'w.phone', 'w.email', 'w.address','w.district_id','w.asm_id', 
-                'w.status', 'w.deletable','d.name as district_name','a.name as asm_name','a.phone as asm_phone')
-                ->leftjoin('locations as d','w.district_id','=','d.id')
-                ->leftjoin('asms as a','w.asm_id','=','a.id');
+                ->select('w.id','w.name', 'w.phone', 'w.email', 'w.address','w.district_id', 
+                'w.status', 'w.deletable','d.name as district_name')
+                ->leftjoin('locations as d','w.district_id','=','d.id');
 
         //search query
         if (!empty($this->name)) {

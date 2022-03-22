@@ -21,14 +21,13 @@
                     <x-form.textbox labelName="Warehouse Name" name="name" required="required" col="col-md-6" placeholder="Enter warehouse name"/>
                     <x-form.textbox labelName="Phone" name="phone" col="col-md-6" placeholder="Enter phone number"/>
                     <x-form.textbox labelName="Email" type="email" name="email" col="col-md-6" placeholder="Enter email address"/>
-                    <x-form.selectbox labelName="District" name="district_id" col="col-md-6" class="selectpicker" onchange="getASMList(this.value)">
+                    <x-form.selectbox labelName="District" name="district_id" required="required" col="col-md-6" class="selectpicker">
                       @if (!$districts->isEmpty())
                           @foreach ($districts as $id => $name)
                               <option value="{{ $id }}">{{ $name }}</option>
                           @endforeach
                       @endif
                     </x-form.selectbox>
-                    <x-form.selectbox labelName="Control By" name="asm_id" col="col-md-6" class="selectpicker"/>
                     <x-form.selectbox labelName="Deletable" name="deletable" required="required" col="col-md-6" class="selectpicker">
                       @foreach ($deletable as $key => $item)
                           <option value="{{ $key }}">{{ $item }}</option>
