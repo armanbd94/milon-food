@@ -36,21 +36,33 @@
                                         </div>
                                     </div>
                                     <div class="card-body">
+                                        @if(Auth::user()->warehouse_id)
+                                        <input type="hidden" name="warehouse_id" id="warehouse_id" value="{{ Auth::user()->warehouse_id }}">
+                                        @else
+                                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required" onchange="closing_data(this.value)" class="selectpicker">
+                                            @if (!$warehouses->isEmpty())
+                                                @foreach ($warehouses as $value)
+                                                <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </x-form.selectbox>
+                                        @endif
+                
                                         <div class="form-group">
                                             <label for="last_day_closing">Last Day Closing</label>
-                                            <input type="text" class="form-control bg-secondary" name="last_day_closing" id="last_day_closing" readonly>
+                                            <input type="text" class="form-control bg-secondary" name="last_day_closing" id="last_day_closing" placeholder="0.00" readonly>
                                         </div>
                                         <div class="form-group">
                                             <label for="cash_in">Collection Receive</label>
-                                            <input type="text" class="form-control" name="cash_in" id="cash_in">
+                                            <input type="text" class="form-control" name="cash_in" id="cash_in" placeholder="0.00">
                                         </div>
                                         <div class="form-group">
                                             <label for="cash_out">Payment</label>
-                                            <input type="text" class="form-control" name="cash_out" id="cash_out">
+                                            <input type="text" class="form-control" name="cash_out" id="cash_out" placeholder="0.00">
                                         </div>
                                         <div class="form-group">
                                             <label for="balance">Balance</label>
-                                            <input type="text" class="form-control" name="balance" id="balance">
+                                            <input type="text" class="form-control" name="balance" id="balance" placeholder="0.00">
                                         </div>
                                     </div>
                                 </div>
@@ -79,43 +91,48 @@
                                                 </tr> 
                                                 <tr>
                                                     <td class="500">500</td>
-                                                    <td><input type="text" class="form-control text_2 text-right" name="fivehnd" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td><input type="text" class="form-control text_2 text-right" name="five_hundred" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_2_bal text-right" readonly=""></td>
                                                 </tr>   
                                                 <tr>
-                                                    <td class="100">100</td>
-                                                    <td><input type="text" class="form-control text_3 text-right" name="hundrad" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td class="200">200</td>
+                                                    <td><input type="text" class="form-control text_3 text-right" name="two_hundred" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_3_bal text-right" readonly=""></td>
                                                 </tr>   
                                                 <tr>
-                                                    <td class="50">50</td>
-                                                    <td><input type="text" class="form-control text_4 text-right" name="fifty" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td class="100">100</td>
+                                                    <td><input type="text" class="form-control text_4 text-right" name="hundred" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_4_bal text-right" readonly=""></td>
                                                 </tr>   
                                                 <tr>
-                                                    <td class="20">20</td>
-                                                    <td><input type="text" class="form-control text_5 text-right" name="twenty" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td class="50">50</td>
+                                                    <td><input type="text" class="form-control text_5 text-right" name="fifty" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_5_bal text-right" readonly=""></td>
                                                 </tr>   
                                                 <tr>
-                                                    <td class="10">10</td>
-                                                    <td><input type="text" class="form-control text_6 text-right" name="ten" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td class="20">20</td>
+                                                    <td><input type="text" class="form-control text_6 text-right" name="twenty" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_6_bal text-right" readonly=""></td>
                                                 </tr>   
                                                 <tr>
-                                                    <td class="5">5</td>
-                                                    <td><input type="text" class="form-control text_7 text-right" name="five" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td class="10">10</td>
+                                                    <td><input type="text" class="form-control text_7 text-right" name="ten" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_7_bal text-right" readonly=""></td>
                                                 </tr>   
                                                 <tr>
-                                                    <td class="2">2</td>
-                                                    <td><input type="text" class="form-control text_8 text-right" name="two" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td class="5">5</td>
+                                                    <td><input type="text" class="form-control text_8 text-right" name="five" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
                                                     <td><input type="text" class="form-control bg-secondary text_8_bal text-right" readonly=""></td>
+                                                </tr>   
+                                                <tr>
+                                                    <td class="2">2</td>
+                                                    <td><input type="text" class="form-control text_9 text-right" name="two" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td><input type="text" class="form-control bg-secondary text_9_bal text-right" readonly=""></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="1">1</td>
-                                                    <td><input type="text" class="form-control text_9 text-right" name="one" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
-                                                    <td><input type="text" class="form-control bg-secondary text_9_bal text-right" readonly=""></td>
+                                                    <td><input type="text" class="form-control text_10 text-right" name="one" onkeyup="cashCalculator()" onchange="cashCalculator()"></td>
+                                                    <td><input type="text" class="form-control bg-secondary text_10_bal text-right" readonly=""></td>
                                                 </tr>
                                             </tbody>
                                             <tfoot>
@@ -148,13 +165,15 @@
 
 @push('scripts')
 <script>
-closing_data();
-function closing_data()
+@if(Auth::user()->warehouse_id)
+closing_data('{{ Auth::user()->warehouse_id }}');
+@endif
+function closing_data(warehouse_id)
 {
     $.ajax({
         url: "{{ route('closing.data') }}",
         type: "POST",
-        data: {_token:_token},
+        data: {_token:_token,warehouse_id:warehouse_id},
         dataType: "JSON",
         success: function (data) {
             $('#last_day_closing').val(parseFloat(data.last_day_closing ? data.last_day_closing : 0).toFixed(2));
@@ -167,7 +186,6 @@ function closing_data()
         }
     });
 }
-
 function store_data(){
     let form = document.getElementById('closing_balance_form');
     let formData = new FormData(form);
@@ -205,16 +223,13 @@ function store_data(){
                     
                 }
             }
-
         },
         error: function (xhr, ajaxOption, thrownError) {
             console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
         }
     });
 }
-
 function cashCalculator() {
-
     var mul1 = $('.text_1').val();
     var text_1_bal = mul1 * 1000;
     $('.text_1_bal').val(text_1_bal);
@@ -251,10 +266,11 @@ function cashCalculator() {
     var text_9_bal = mul9 * 1;
     $('.text_9_bal').val(text_9_bal);
 
+    var mul10 = $('.text_10').val();
+    var text_10_bal = mul10 * 1;
+    $('.text_10_bal').val(text_10_bal);
 
-    var total_money = (text_1_bal + text_2_bal + text_3_bal + text_4_bal + text_5_bal + text_6_bal + text_7_bal + text_8_bal + text_9_bal);
-
+    var total_money = (text_1_bal + text_2_bal + text_3_bal + text_4_bal + text_5_bal + text_6_bal + text_7_bal + text_8_bal + text_9_bal + text_10_bal);
     $('.total_money').val(total_money);
 }
 </script>
-@endpush

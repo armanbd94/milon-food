@@ -20,5 +20,6 @@
             <tr><td width="30%"><b>Create Date</b></td><td><b>:</b></td><td>{{  $user->created_at ? date(config('settings.date_format'),strtotime($user->created_at)) : ''  }}</td></tr>
             @if($user->modified_by)<tr><td width="30%"><b>Modified Date</b></td><td><b>:</b></td><td>{{  $user->updated_at ? date(config('settings.date_format'),strtotime($user->updated_at)) : ''  }}</td></tr>@endif
             <tr><td width="30%"><b>Account Deletable</b></td><td><b>:</b></td><td>{!! DELETABLE_LABEL[$user->deletable] !!}</td></tr>
+        </table>
     </div>
 </div>

@@ -14,12 +14,13 @@ class ClosingFormRequest extends FormRequest
     public function rules()
     {
         return [
+            'warehouse_id'     => 'required',
             'last_day_closing' => 'nullable|numeric|gte:0',
-            'cash_in' => 'nullable|numeric|gte:0',
-            'cash_out' => 'nullable|numeric|gte:0',
-            'balance' => 'nullable|numeric|gte:0',
-            'transfer' => 'nullable|numeric|gte:0',
-            'cash_in_hand' => 'nullable|numeric|gte:0',
+            'cash_in'          => 'nullable|numeric|gte:0',
+            'cash_out'         => 'nullable|numeric|gte:0',
+            'balance'          => 'nullable|numeric|gte:0',
+            'transfer'         => 'nullable|numeric|gte:0',
+            'cash_in_hand'     => 'nullable|numeric|gte:0',
         ];
     }
 
@@ -31,7 +32,6 @@ class ClosingFormRequest extends FormRequest
             'cash_in_hand.gte' => 'Closing balance field value must be greater than or equal to 0',
         ];
     }
-
     /**
      * Determine if the user is authorized to make this request.
      *
