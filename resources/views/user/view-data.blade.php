@@ -2,7 +2,7 @@
     @if($user->avatar)
         <img src='storage/{{ USER_PHOTO_PATH.$user->avatar }}' alt='{{ $user->name }}' style='width:200px;'/>
     @else
-        <img src='images/{{ $user->gender == 'Male' ? 'male' : 'female' }}.svg' alt='Default Image' style='width:200px;'/>
+        <img src='images/{{ $user->gender == '1' ? 'male' : 'female' }}.svg' alt='Default Image' style='width:200px;'/>
     @endif
 </div>
 <div class="col-md-12">
@@ -11,6 +11,7 @@
             <tr><td width="30%"><b>Name</b></td><td><b>:</b></td><td>{{ $user->name }}</td></tr>
             <tr><td width="30%"><b>Username</b></td><td><b>:</b></td><td>{{ $user->username }}</td></tr>
             <tr><td width="30%"><b>Role</b></td><td><b>:</b></td><td>{{ $user->role->role_name }}</td></tr>
+            <tr><td width="30%"><b>Control By</b></td><td><b>:</b></td><td>{{ $user->parent->name }}</td></tr>
             <tr><td width="30%"><b>Phone</b></td><td><b>:</b></td><td>{{ $user->phone }}</td></tr>
             <tr><td width="30%"><b>Email</b></td><td><b>:</b></td><td>{!! $user->email ? $user->email : '<span class="label label-danger label-pill label-inline" style="min-width:70px !important;">No Email</span>' !!}</td></tr>
             <tr><td width="30%"><b>Gender</b></td><td><b>:</b></td><td>{!! GENDER_LABEL[$user->gender] !!}</td></tr>

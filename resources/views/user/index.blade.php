@@ -381,7 +381,7 @@ $(document).ready(function(){
                             $('#avatar img').css('display','none');
                             $('#avatar .spartan_remove_row').css('display','none');
                             $('#avatar .img_').css('display','block');
-                            $('#avatar .img_').attr('src',"{{ asset('storage/'.SALESMEN_AVATAR_PATH)}}/"+data.avatar);
+                            $('#avatar .img_').attr('src',"{{ asset('storage/'.USER_PHOTO_PATH)}}/"+data.avatar);
                         }else{
                             $('#avatar img').css('display','block');
                             $('#avatar .spartan_remove_row').css('display','none');

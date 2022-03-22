@@ -142,7 +142,7 @@ class UserController extends BaseController
     {
         if($request->ajax()){
             if(permission('user-view')){
-                $user   = $this->model->findOrFail($request->id);
+                $user   = $this->model->with('parent')->findOrFail($request->id);
                 return view('user.view-data',compact('user'))->render();
             }
         }
