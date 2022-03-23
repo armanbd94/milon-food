@@ -7,9 +7,8 @@ use App\Models\Unit;
 use App\Models\Category;
 use App\Models\BaseModel;
 use Modules\Material\Entities\Material;
-use Modules\Product\Entities\Attribute;
-use Modules\Product\Entities\ProductVariant;
-use Modules\Product\Entities\ProductAttribute;
+use Modules\Product\Entities\WarehouseProduct;
+
 
 class Product extends BaseModel
 {
@@ -23,12 +22,12 @@ class Product extends BaseModel
         return $this->belongsTo(Category::class);
     }
 
-    public function unit()
-    {
-        return $this->belongsTo(Unit::class,'unit_id','id')->default(['unit_name'=>'','unit_code'=>'']);
-    }
+    // public function unit()
+    // {
+    //     return $this->belongsTo(Unit::class,'unit_id','id')->default(['unit_name'=>'','unit_code'=>'']);
+    // }
 
-    public function base_unit()
+    public function unit()
     {
         return $this->belongsTo(Unit::class,'base_unit_id','id');
     }

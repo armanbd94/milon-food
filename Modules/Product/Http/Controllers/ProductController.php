@@ -364,4 +364,14 @@ class ProductController extends BaseController
             return response()->json($code);
         }
     }
+
+    public function warehouse_wise_qty(Request $request)
+    {
+        if($request->ajax())
+        {
+            $stock_qty =  DB::table('warehouse_product')->where([
+                'warehouse_id'=>$request->warehouse_id,'product_id'=>$request->product_id])->value('qty');
+            return $stock_qty ?? 0;
+        }
+    }
 }

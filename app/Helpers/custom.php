@@ -108,6 +108,11 @@ define('ASSET_STATUS',([
     "4" => "On Service",
     "5" => "Archived",
 ]));
+define('TRANSFER_RECEIVE_STATUS',([
+    "1" => "Full Received",
+    "2" => "Partial Received",
+    "3" => "Pending",
+]));
 
 define('PRODUCTION_STATUS',['1'=>'Pending', '2'=>'Processing','3'=>'Finished']);
 define('TRANSFER_STATUS',['1'=>'Pending', '2'=>'Complete']);

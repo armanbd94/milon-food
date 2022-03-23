@@ -26,6 +26,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('bulk-delete', 'ProductController@bulk_delete')->name('bulk.delete');
         Route::post('change-status', 'ProductController@change_status')->name('change.status');
         Route::get('generate-code', 'ProductController@generateProductCode')->name('generate.code');
+        Route::post('warehouse-wise-qty', 'ProductController@warehouse_wise_qty')->name('warehouse.wise.qty');
     });
 
     Route::post('barcode/product-autocomplete-search', 'BarcodeController@autocomplete_search_product');
