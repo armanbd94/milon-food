@@ -74,7 +74,7 @@ class TransferController extends BaseController
                     if(permission('transfer-inventory-view')){
                         $action .= ' <a class="dropdown-item view_data" href="'.route("transfer.inventory.view",$value->id).'">'.self::ACTION_BUTTON['View'].'</a>';
                     }
-                    if(permission('transfer-inventory-edit') && (auth()->user()->id == $value->receiver_id)){
+                    if(permission('transfer-inventory-edit') && (auth()->user()->id == $value->receiver_id) && ($value->receive_status == 3) && ($value->transfer_status == 1)){
                         $action .= ' <a class="dropdown-item receive_data"  data-id="' . $value->id . '" data-name="' . $value->challan_no . '"><i class="fas fa-truck-loading text-info mr-2"></i> Receive</a>';
                     }
                     if(permission('transfer-inventory-delete') && empty(auth()->user()->warehouse_id)){
@@ -99,10 +99,10 @@ class TransferController extends BaseController
                     {
                         $row[] = number_format($value->grand_total,2,'.',',');
                         $row[] = $value->transfer_status == 1 ? 'Transfered' : 'Pending';
-                        $row[] = $value->receiver_name.($value->receive_date ? '<br><b>Date: </b>'.date(config('settings.date_format'),strtotime($value->receive_date)) : '').TRANSFER_RECEIVE_STATUS[$value->receive_status];
+                        $row[] = $value->receiver_name.($value->receive_date ? '<br><b>Date: </b>'.date(config('settings.date_format'),strtotime($value->receive_date)) : '').'<br><b>Status: </b>'.TRANSFER_RECEIVE_STATUS[$value->receive_status];
                         $row[] = $value->created_by;
                     }else{
-                        $row[] = ($value->receive_date ? '<br><b>Date: </b>'.date(config('settings.date_format'),strtotime($value->receive_date)) : '').TRANSFER_RECEIVE_STATUS[$value->receive_status];
+                        $row[] = ($value->receive_date ? '<b>Date: </b>'.date(config('settings.date_format'),strtotime($value->receive_date)).'<br>' : '').'<b>Status: </b>'.TRANSFER_RECEIVE_STATUS[$value->receive_status];
                     }
                     $row[] = action_button($action);//custom helper function for action button
                     $data[] = $row;
@@ -185,7 +185,14 @@ class TransferController extends BaseController
 
                     if(!empty($request->shipping_cost) && $request->shipping_cost > 0)
                     {
-                        Transaction::updateOrCreate(['voucher_no' => $request->challan_no,'voucher_type'=>'Inventory Transfer'],$this->model->shipping_expense_transaction($request));
+                        $transaction = Transaction::where(['voucher_no' => $request->challan_no,'voucher_type'=>'Inventory Transfer'])->orderBy('id','asc')->first();
+                        if($transaction)
+                        {
+                            $transaction->update($this->model->shipping_expense_transaction($request));
+                        }else{
+                            Transaction::create($this->model->shipping_expense_transaction($request));
+                        }
+                        
                     }
 
                     $output  = $this->store_message($transferData, $request->transfer_id);
@@ -291,39 +298,25 @@ class TransferController extends BaseController
     {
         if($request->ajax()){
             if(permission('transfer-inventory-add') || permission('transfer-inventory-edit')){
-                dd($request->all());
+                // dd($request->all());
                 DB::beginTransaction();
                 try {
                     $transferData = $this->model->with('products')->find($request->transfer_id);
-                    if(!$transferData->products->isEmpty())
-                    {
-                        if($transferData->transfer_status == 1){
-                            foreach ($transferData->products as $value) {
 
-                                $from_warehouse = WarehouseProduct::where([
-                                    ['warehouse_id',$transferData->from_warehouse_id],
-                                    ['product_id',$value->id]
-                                ])->first();
-                                if($from_warehouse)
-                                {
-                                    $from_warehouse->qty += $value->pivot->transfer_qty;
-                                    $from_warehouse->update();
-                                }
-                            }
-                        }
-                    }
-                    $transferData->products()->sync($this->model->transfer_product_data($request));
-                    $transferData->update($this->model->transfer_data(collect($request->validated())->except('products')));
-                    
-                    
+                    $transferData->products()->sync($this->model->receive_transfer_product_data($request));
+                    $transferData->update([
+                        "receive_qty"    => $request->receive_qty,
+                        "damage_qty"     => $request->damage_qty,
+                        "receive_status" => ($request->damage_qty > 0) ? 2 : 1,
+                        "receive_date"   => date('Y-m-d')
+                    ]);
 
-                    if(!empty($request->shipping_cost) && $request->shipping_cost > 0)
+                    if(!empty($request->total_damage_cost) && $request->total_damage_cost > 0)
                     {
-                        Transaction::updateOrCreate(['voucher_no' => $request->challan_no,'voucher_type'=>'Inventory Transfer'],$this->model->shipping_expense_transaction($request));
+                        Transaction::create($this->model->inventory_damage_transaction($request));
                     }
 
                     $output  = $this->store_message($transferData, $request->transfer_id);
-                    $output['transfer_id']  = $request->transfer_id ? '' : $transfer->id;
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollback();

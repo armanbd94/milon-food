@@ -516,6 +516,7 @@ function store_data(){
                 } else {
                     notification(data.status, data.message);
                     if (data.status == 'success') {
+                        $('#view_modal').modal('hide');
                         table.ajax.reload(null, false);
                     }
                 }

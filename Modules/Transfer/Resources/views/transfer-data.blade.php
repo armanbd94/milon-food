@@ -31,6 +31,7 @@
                             <td class="text-center">{{ $item->unit->unit_name }}</td>
                             <td class="text-center">
                                 {{ $item->transfer_qty }}
+                                <input type="hidden"  name="products[{{ $key+1 }}][id]" id="products_{{ $key+1 }}_id" value="{{ $item->product_id }}" />
                                 <input type="hidden" class="transfer_qty" name="products[{{ $key+1 }}][transfer_qty]" id="products_{{ $key+1 }}_transfer_qty" value="{{ $item->transfer_qty }}" />
                                 <input type="hidden" name="products[{{ $key+1 }}][net_unit_cost]" id="products_{{ $key+1 }}_net_unit_cost" value="{{ $item->net_unit_cost }}" />
                                 <input type="hidden" class="damage_cost" name="products[{{ $key+1 }}][damage_cost]" id="products_{{ $key+1 }}_damage_cost" value="{{ $item->net_unit_cost * $item->damage_qty  }}" />
@@ -55,6 +56,9 @@
             </tfoot>
         </table>
         <input type="hidden" name="transfer_id" id="transfer_id" value="{{ $transfer->id }}" />
+        <input type="hidden" name="challan_no" id="challan_no" value="{{ $transfer->challan_no }}" />
+        <input type="hidden" name="transfer_date" id="transfer_date" value="{{ $transfer->transfer_date }}" />
+        <input type="hidden" name="to_warehouse_id" id="to_warehouse_id" value="{{ $transfer->to_warehouse_id }}" />
         <input type="hidden" name="receive_qty" id="receive_qty" />
         <input type="hidden" name="damage_qty" id="damage_qty" />
         <input type="hidden" name="total_damage_cost" id="total_damage_cost" value="{{ $total_damage_cost  }}" />

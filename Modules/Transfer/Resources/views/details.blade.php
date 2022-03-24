@@ -94,18 +94,22 @@
                                             <td class="text-center"><b>RECEIVE QTY</b></td>
                                             <td class="text-center"><b>DAMAGE QTY</b></td>
                                             @if(empty(Auth::user()->warehouse_id))
-                                            <td class="text-center"><b>COST</b></td>
-                                            <td class="text-center"><b>VALUE</b></td>
+                                            <td class="text-center no_print"><b>COST</b></td>
+                                            <td class="text-right no_print"><b>TRANSFER VALUE</b></td>
+                                            <td class="text-right no_print"><b>RECEIVE VALUE</b></td>
+                                            <td class="text-right no_print"><b>DAMAGE VALUE</b></td>
                                             @endif
                                         </tr>
                                         @if (!$transfer->hasManyProducts->isEmpty())
                                             @php
-                                                $total_receive_qty = $total_damage_qty = 0;
+                                                $total_receive_qty = $total_damage_qty = $total_receive_value = $total_damage_value = 0;
                                             @endphp
                                             @foreach ($transfer->hasManyProducts as $key => $item)
                                                 @php
                                                     $total_receive_qty += $item->receive_qty;
                                                     $total_damage_qty  += $item->damage_qty;
+                                                    $total_receive_value += ($item->receive_qty ?? 0) * $item->net_unit_cost;
+                                                    $total_damage_value += ($item->damage_qty ?? 0) * $item->net_unit_cost;
                                                 @endphp
                                                 <tr>
                                                     <td class="text-center">{{ $key+1 }}</td>
@@ -115,8 +119,10 @@
                                                     <td class="text-center">{{ number_format($item->receive_qty,2,'.',',') }}</td>
                                                     <td class="text-center">{{ number_format($item->damage_qty,2,'.',',') }}</td>
                                                     @if(empty(Auth::user()->warehouse_id))
-                                                    <td class="text-right">{{ number_format($item->net_unit_cost,2,'.',',') }}</td>
-                                                    <td class="text-right">{{ number_format($item->total,2,'.',',') }}</td>
+                                                    <td class="text-right no_print">{{ number_format($item->net_unit_cost,2,'.',',') }}</td>
+                                                    <td class="text-right no_print">{{ number_format($item->total,2,'.',',') }}</td>
+                                                    <td class="text-right no_print">{{ number_format((($item->receive_qty ?? 0) * $item->net_unit_cost),2,'.',',') }}</td>
+                                                    <td class="text-right no_print">{{ number_format((($item->damage_qty ?? 0) * $item->net_unit_cost),2,'.',',') }}</td>
                                                     @endif
                                                 </tr>
                                             @endforeach
@@ -127,7 +133,9 @@
                                                 <td class="text-center"><b>{{ number_format($total_damage_qty,2,'.',',') }}</b></td>
                                                 @if(empty(Auth::user()->warehouse_id))
                                                 <td></td>
-                                                <td class="text-right"><b>{{ number_format($transfer->grand_total,2,'.',',') }}</b></td>
+                                                <td class="text-right no_print"><b>{{ number_format($transfer->grand_total,2,'.',',') }}</b></td>
+                                                <td class="text-right no_print"><b>{{ number_format($total_receive_value,2,'.',',') }}</b></td>
+                                                <td class="text-right no_print"><b>{{ number_format($total_damage_value,2,'.',',') }}</b></td>
                                                 @endif
                                             </tr>
                                         @endif

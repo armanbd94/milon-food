@@ -220,6 +220,38 @@ class Transfer extends BaseModel
         return $products;
     }
 
+    public function receive_transfer_product_data($request)
+    {
+        $products = [];
+        if($request->has('products'))
+        {                       
+            foreach ($request->products as $key => $value) {
+                $products[$value['id']] = [
+                    "receive_qty" => $value['receive_qty'],
+                    "damage_qty" => $value['damage_qty']
+                ];
+
+                $to_warehouse = WarehouseProduct::where([
+                    ['warehouse_id',$request->to_warehouse_id],
+                    ['product_id',$value['id']]
+                ])->first();
+                if($to_warehouse)
+                {
+                    $to_warehouse->qty += $value['receive_qty'];
+                    $to_warehouse->update();
+                }else{
+                    WarehouseProduct::create([
+                        'warehouse_id'=> $request->to_warehouse_id,
+                        'product_id'=>$value['id'],
+                        'qty'=> $value['receive_qty']
+                    ]);
+                }
+                
+            }
+        }
+        return $products;
+    }
+
     public function shipping_expense_transaction($request)
     {
         return [
@@ -231,6 +263,24 @@ class Transfer extends BaseModel
             'description'         => 'Inventory transfer shipping cost '.$request->shipping_cost,
             'debit'               => $request->shipping_cost,
             'credit'              => 0,
+            'posted'              => 1,
+            'approve'             => 1,
+            'created_by'          => auth()->user()->name,
+            'created_at'          => date('Y-m-d H:i:s')
+        ];
+    }
+
+    public function inventory_damage_transaction($request)
+    {
+        return [
+            'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
+            'warehouse_id'        => $request->from_warehouse_id,
+            'voucher_no'          => $request->challan_no,
+            'voucher_type'        => 'Inventory Transfer',
+            'voucher_date'        => $request->transfer_date,
+            'description'         => 'Inventory transfer product damage cost '.$request->total_damage_cost,
+            'debit'               => 0,
+            'credit'              => $request->total_damage_cost,
             'posted'              => 1,
             'approve'             => 1,
             'created_by'          => auth()->user()->name,
