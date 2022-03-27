@@ -106,12 +106,12 @@
                             .invoice table th {
                                 background: #036;
                                 color: #fff;
-                                padding: 15px;
+                                padding: 10px;
                                 border-bottom: 1px solid #fff
                             }
 
                             .invoice table td {
-                                padding: 15px;
+                                padding: 5px;
                                 border-bottom: 1px solid #fff
                             }
 
@@ -154,7 +154,7 @@
                                 border-bottom: none;
                                 white-space: nowrap;
                                 text-align: right;
-                                padding: 10px 20px;
+                                padding: 5px;
                                 border-top: 1px solid #aaa;
                                 font-weight: bold;
                             }
@@ -239,6 +239,7 @@
                                     font-family: sans-serif;
                                     /* font-size: 12px !important; */
                                     margin-bottom: 100px !important;
+                                   
                                 }
 
                                 .m-0 {
@@ -295,8 +296,9 @@
                                 .invoice {
                                     /* font-size: 11px!important; */
                                     overflow: hidden !important;
-                                    background: #fff !important;
+                                    /* background: #fff !important; */
                                     margin-bottom: 100px !important;
+                                    position: relative;
                                 }
 
                                 .invoice footer {
@@ -323,19 +325,21 @@
 
                             }
                         </style>
-                        <div class="invoice overflow-auto">
+                        <div class="invoice" style="position: relative;">
                             <div>
                                 <table>
                                     <tr>
                                         <td class="text-center">
-                                            <h2 class="name m-0" style="text-transform: uppercase;"><b>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</b></h2>
+                                            <img src="./images/mfbl-logo.png" style="width: 60px;" alt="Logo" />
+                                            <h1 class="name m-0" style="text-transform: uppercase;"><b>{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</b></h1>
+                                            @if(config('settings.address'))<p style="font-weight: normal;margin:0;"><b>Address: </b>{{ config('settings.address') }}</p>@endif
                                             @if(config('settings.contact_no'))<p style="font-weight: normal;margin:0;"><b>Contact No.: </b>{{ config('settings.contact_no') }}, @if(config('settings.email'))<b>Email: </b>{{ config('settings.email') }}@endif</p>@endif
-                                            @if(config('settings.address'))<p style="font-weight: normal;margin:0;">{{ config('settings.address') }}</p>@endif
-                                            <p style="font-weight: normal;margin:0;"><b>Date: </b>{{ date('d-M-Y') }}</p>
+                                            
+                                            <p style="font-weight: normal;margin:0;"><b>Factory Address: </b>Bakua, Ullapara-6760, Sirajganj</p>
                                         </td>
                                     </tr>
                                 </table>
-                                <div style="width: 100%;height:3px;border-top:1px solid #036;border-bottom:1px solid #036;"></div>
+                                <div style="width: 100%;height:3px;border-top:2px solid #036;"></div>
                                 <table>
                                     <tr>
                                         <td width="50%">
@@ -512,12 +516,6 @@
                                         </tr>
                                     </tfoot>
                                 </table>
-                                <table>
-                                    <tr>
-                                        <td><b>AMOUNT (TK) IN WORD:</b> {{ numberTowords($sale->net_total) }}</td>
-                                    </tr>
-                                </table>
-
                                 <table style="width: 100%;">
                                     <tr>
                                         <td class="text-center">
@@ -536,6 +534,10 @@
                                         </td>
                                     </tr>
                                 </table>
+                            </div>
+
+                            <div class="no_screen" style="position: absolute;top:40%;left:10%;opacity:0.2;">
+                                <img src="{{ asset('storage/'.LOGO_PATH.config('settings.logo'))}}" style="width: 80%;" alt="Logo" />
                             </div>
                         </div>
 

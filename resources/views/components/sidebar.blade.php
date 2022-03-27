@@ -5,7 +5,7 @@
         <div class="brand-logo">
             @if (config('settings.logo'))
             <a href="{{ url('dashboard') }}">
-                <img src="{{ asset('storage/'.LOGO_PATH.config('settings.logo'))}}" style="max-width: 150px;" alt="Logo" />
+                <img src="{{ asset('storage/'.LOGO_PATH.config('settings.logo'))}}" style="max-width: 80px;" alt="Logo" />
             </a>
             @else
             <h3 class="text-white">{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</h3>

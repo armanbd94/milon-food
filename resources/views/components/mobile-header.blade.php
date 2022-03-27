@@ -3,7 +3,7 @@
 
             @if (config('settings.logo'))
             <a href="{{ url('/') }}">
-                <img src="{{ asset('storage/'.LOGO_PATH.config('settings.logo'))}}" style="width: 90px;" alt="Logo" />
+                <img src="{{ asset('storage/'.LOGO_PATH.config('settings.logo'))}}" style="width: 60px;" alt="Logo" />
             </a>
             @else
             <h3 class="text-white">{{ config('settings.title') ? config('settings.title') : env('APP_NAME') }}</h3>
