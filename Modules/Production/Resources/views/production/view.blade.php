@@ -59,7 +59,7 @@
                                             <tr>
                                                 <td class="text-center">{{ date('d-M-Y',strtotime($item->mfg_date)) }}</td>
                                                 <td class="text-center">{{ date('d-M-Y',strtotime($item->exp_date)) }}</td>
-                                                <td class="text-center">{{ $item->product->base_unit->unit_name.' ('.$item->product->base_unit->unit_code.')' }}</td>
+                                                <td class="text-center">{{ $item->product->unit->unit_name.' ('.$item->product->unit->unit_code.')' }}</td>
                                                 <td class="text-center">{{ $item->base_unit_qty }}</td>
                                                 @if ($item->has_coupon == 1)
                                                 <td class="text-center">{{ $item->total_coupon }}</td>

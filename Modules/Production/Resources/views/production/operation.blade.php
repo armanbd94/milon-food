@@ -53,13 +53,13 @@
                                             <th class="text-center">Mfg. Date</th>
                                             <th class="text-center">Exp. Date</th>
                                             <th class="text-center">Unit Name</th>
-                                            <th class="text-center">Finish Goods Qty</th>
+                                            <th class="text-center">Finish Goods Qty <sup class="text-danger font-weight-bolder">*</sup></th>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td class="text-center">{{ date('d-M-Y',strtotime($item->mfg_date)) }}</td>
                                                 <td class="text-center">{{ date('d-M-Y',strtotime($item->exp_date)) }}</td>
-                                                <td class="text-center">{{ $item->product->base_unit->unit_name.' ('.$item->product->base_unit->unit_code.')' }}</td>
+                                                <td class="text-center">{{ $item->product->unit->unit_name.' ('.$item->product->unit->unit_code.')' }}</td>
                                                 <td>
                                                     <input type="text" class="form-control text-center" value="{{ $item->base_unit_qty }}" name="production[{{ $key+1 }}][fg_qty]" id="production_{{ $key+1 }}_fg_qty" onkeyup="per_unit_cost('{{ $key+1 }}')">
                                                     <input type="hidden" class="form-control" name="production[{{ $key+1 }}][production_product_id]" value="{{ $item->id }}">
@@ -76,7 +76,7 @@
                                             <th width="10%" class="text-center">Unit Name</th>
                                             <th width="10%" class="text-right">Rate</th>
                                             <th class="text-center">Received Qty</th>
-                                            <th class="text-center">Used Qty</th>
+                                            <th class="text-center">Used Qty <sup class="text-danger font-weight-bolder">*</sup></th>
                                             <th class="text-center">Damaged Qty</th>
                                             <th class="text-center">Odd Qty</th>
                                         </thead>
@@ -99,13 +99,13 @@
                                                             <input type="hidden" class="form-control text-right material_{{ $key+1 }}_qty" value="{{ $value->pivot->qty }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_qty" data-id="{{ $index+1 }}">
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control text-center material_{{ $key+1 }}_used_qty" value="{{ $value->pivot->used_qty ?? 0 }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][used_qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_used_qty"  onkeyup="calculateRowData('{{ $key+1 }}','{{ $index+1 }}')" data-id="{{ $index+1 }}">
+                                                            <input type="text" class="form-control text-center material_{{ $key+1 }}_used_qty" value="{{ $value->pivot->used_qty ?? '' }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][used_qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_used_qty"  onkeyup="calculateRowData('{{ $key+1 }}','{{ $index+1 }}')" data-id="{{ $index+1 }}">
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control text-center material_{{ $key+1 }}_damaged_qty" value="{{ $value->pivot->damaged_qty ?? 0 }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][damaged_qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_damaged_qty"  onkeyup="calculateRowData('{{ $key+1 }}','{{ $index+1 }}')" data-id="{{ $index+1 }}">
+                                                            <input type="text" class="form-control text-center material_{{ $key+1 }}_damaged_qty" value="{{ $value->pivot->damaged_qty ?? '' }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][damaged_qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_damaged_qty"  onkeyup="calculateRowData('{{ $key+1 }}','{{ $index+1 }}')" data-id="{{ $index+1 }}">
                                                         </td>
                                                         <td>
-                                                            <input readonly type="text" class="form-control bg-secondary text-center material_{{ $key+1 }}_odd_qty" value="{{ $value->pivot->odd_qty ?? 0 }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][odd_qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_odd_qty"  data-id="{{ $index+1 }}">
+                                                            <input readonly type="text" class="form-control bg-secondary text-center material_{{ $key+1 }}_odd_qty" value="{{ $value->pivot->odd_qty ?? '' }}" name="production[{{ $key+1 }}][materials][{{ $index+1 }}][odd_qty]" id="production_{{ $key+1 }}_materials_{{ $index+1 }}_odd_qty"  data-id="{{ $index+1 }}">
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -218,7 +218,11 @@ function calculateRowData(key,index)
     
     used_qty    = used_qty ? used_qty : 0;
     damaged_qty = damaged_qty ? damaged_qty : 0;
-    var odd_qty     = parseFloat(qty - (used_qty + damaged_qty));
+    var odd_qty = 0;
+    if(used_qty)
+    {
+        odd_qty    = parseFloat(qty - (used_qty + damaged_qty));
+    }
 
     console.log('cost='+cost,'qty='+qty,'used='+used_qty,'damaged='+damaged_qty,'odd='+odd_qty);
 

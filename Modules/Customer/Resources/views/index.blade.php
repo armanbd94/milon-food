@@ -504,5 +504,4 @@ function showNewFormModal(modal_title, btn_text) {
     $('#store_or_update_modal #save-btn').text(btn_text);
 }
 </script>
-</script>
 @endpush

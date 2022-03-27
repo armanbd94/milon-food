@@ -9,6 +9,7 @@ define('EMPLOYEE_IMAGE_PATH','employee/');
 define('SALESMEN_AVATAR_PATH','salesmen/');
 define('ASM_AVATAR_PATH','asm/');
 define('CUSTOMER_AVATAR_PATH','customer/');
+define('DEALER_AVATAR_PATH','dealer/');
 define('PURCHASE_DOCUMENT_PATH','purchase-document/');
 define('SALE_DOCUMENT_PATH','sale-document/');
 define('TRANSFER_DOCUMENT_PATH','transfer-document/'); 

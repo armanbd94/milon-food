@@ -13,7 +13,7 @@ class OperationRequest extends FormRequest
     {
         $collection = collect(request());
         if($collection->has('production')){
-            
+            // dd(request()->production);
             foreach (request()->production as $key => $value) {
                 
                 $this->rules['production.'.$key.'.fg_qty']         = ['required','numeric','gt:0'];
@@ -25,6 +25,13 @@ class OperationRequest extends FormRequest
                 $this->messages['production.'.$key.'.materials_per_unit_cost.required'] = 'This field is required';
                 $this->messages['production.'.$key.'.materials_per_unit_cost.numeric']  = 'This field value must be numeric';
                 $this->messages['production.'.$key.'.materials_per_unit_cost.gt']       = 'This field value must be greater than 0 ';
+
+                foreach ($value['materials'] as $index => $material) {
+                    $this->rules['production.'.$key.'.materials.'.$index.'.used_qty']         = ['required','numeric','gt:0'];
+                    $this->messages['production.'.$key.'.materials.'.$index.'.used_qty.required']        = 'This field is required';
+                $this->messages['production.'.$key.'.materials.'.$index.'.used_qty.numeric']         = 'This field value must be numeric';
+                $this->messages['production.'.$key.'.materials.'.$index.'.used_qty.gt']              = 'This field value must be greater than 0 ';
+                }
             }
         }
 
