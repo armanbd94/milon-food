@@ -319,14 +319,15 @@
 <script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
-    $("input,select,textarea").bind("keydown", function (e) {
-        var keyCode = e.keyCode || e.which;
-        if(keyCode == 13) {
-            e.preventDefault();
-            $('input, select, textarea')
-            [$('input,select,textarea').index(this)+1].focus();
-        }
-    });
+$("input,select,textarea").bind("keydown", function (e) {
+    var keyCode = e.keyCode || e.which;
+    if(keyCode == 13) {
+        e.preventDefault();
+        $('input, select, textarea')
+        [$('input,select,textarea').index(this)+1].focus();
+    }
+});
+$("#kt_body").addClass("aside-minimize");
 //array data depend on warehouse
 var material_array = [];
 var material_code  = [];

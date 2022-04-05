@@ -295,21 +295,21 @@ class CustomerController extends BaseController
         }
     }
 
-    // public function change_status(Request $request)
-    // {
-    //     if($request->ajax()){
-    //         if(permission('customer-edit')){
-    //             $result   = $this->model->find($request->id)->update(['status' => $request->status]);
-    //             $output   = $result ? ['status' => 'success','message' => 'Status Has Been Changed Successfully']
-    //             : ['status' => 'error','message' => 'Failed To Change Status'];
-    //         }else{
-    //             $output   = $this->unauthorized();
-    //         }
-    //         return response()->json($output);
-    //     }else{
-    //         return response()->json($this->unauthorized());
-    //     }
-    // }
+    public function change_status(Request $request)
+    {
+        if($request->ajax()){
+            if(permission('customer-edit')){
+                $result   = $this->model->find($request->id)->update(['status' => $request->status]);
+                $output   = $result ? ['status' => 'success','message' => 'Status Has Been Changed Successfully']
+                : ['status' => 'error','message' => 'Failed To Change Status'];
+            }else{
+                $output   = $this->unauthorized();
+            }
+            return response()->json($output);
+        }else{
+            return response()->json($this->unauthorized());
+        }
+    }
 
 
     public function customer_list(Request $request)

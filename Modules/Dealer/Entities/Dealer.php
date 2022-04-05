@@ -2,20 +2,30 @@
 
 namespace Modules\Dealer\Entities;
 
-use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
+use Modules\Product\Entities\Product;
 use Modules\Location\Entities\Upazila;
 use Modules\Location\Entities\District;
 use Modules\Account\Entities\Transaction;
+use Modules\Dealer\Entities\DealerProduct;
 use Modules\Account\Entities\ChartOfAccount;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Modules\Setting\Entities\Warehouse;
 
-
-class Dealer extends BaseModel
+class Dealer extends Authenticatable
 {
-    protected $fillable = [ 'name', 'shop_name', 'mobile', 'email', 'avatar', 
+    protected $fillable = [ 'name', 'shop_name', 'mobile','username','password', 'email', 'avatar', 'warehouse_id',
      'district_id', 'upazila_id', 'address', 'status', 'created_by', 'modified_by'];
 
+     protected $hidden = [
+        'password',
+        'remember_token',  
+    ];
 
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class,'warehouse_id','id');
+    }
     public function district()
     {
         return $this->belongsTo(District::class,'district_id','id');
@@ -52,17 +62,47 @@ class Dealer extends BaseModel
     public function products()
     {
         return $this->belongsToMany(Product::class,'dealer_products','dealer_id','product_id','id','id')
-        ->withPivot('id','commission_amount')
+        ->withPivot('id','commission_rate','commission_percentage')
         ->withTimestamps();
+    }
+
+    public function hasManyProducts(){
+        return $this->hasMany(DealerProduct::class,'dealer_id','id');
     }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
+    protected $order = ['id' => 'desc'];
+    protected $column_order;
+
+    protected $orderValue;
+    protected $dirValue;
+    protected $startVlaue;
+    protected $lengthVlaue;
+
+    public function setOrderValue($orderValue)
+    {
+        $this->orderValue = $orderValue;
+    }
+    public function setDirValue($dirValue)
+    {
+        $this->dirValue = $dirValue;
+    }
+    public function setStartValue($startVlaue)
+    {
+        $this->startVlaue = $startVlaue;
+    }
+    public function setLengthValue($lengthVlaue)
+    {
+        $this->lengthVlaue = $lengthVlaue;
+    }
+
     //custom search column property
     protected $_name; 
     protected $_shop_name; 
     protected $_mobile; 
     protected $_email; 
+    protected $_warehouse_id; 
     protected $_district_id; 
     protected $_upazila_id; 
     protected $_status; 
@@ -85,6 +125,10 @@ class Dealer extends BaseModel
         $this->_email = $email;
     }
 
+    public function setWarehouseID($warehouse_id)
+    {
+        $this->_warehouse_id = $warehouse_id;
+    }
     public function setDistrictID($district_id)
     {
         $this->_district_id = $district_id;
@@ -103,27 +147,31 @@ class Dealer extends BaseModel
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
+
         if(permission('dealer-bulk-delete'))
         {
             if(auth()->user()->warehouse_id)
             {
-                $this->column_order = ['id','id','avatar','name', 'shop_name', 'district_id','upazila_id','status',null,null];
+                $this->column_order = ['id','id','avatar','name', 'shop_name', 'username','district_id','upazila_id','status',null,null];
             }else{
-                $this->column_order = ['id','id','avatar','name', 'shop_name', 'warehouse_id','district_id','upazila_id','status',null,null];
+                $this->column_order = ['id','id','avatar','name', 'shop_name', 'username', 'warehouse_id','district_id','upazila_id','status',null,null];
             }
         }else{
             if(auth()->user()->warehouse_id)
             {
-                $this->column_order = ['id','avatar','name', 'shop_name', 'district_id','upazila_id','status',null,null];
+                $this->column_order = ['id','avatar','name', 'shop_name', 'username', 'district_id','upazila_id','status',null,null];
             }else{
-                $this->column_order = ['id','avatar','name', 'shop_name', 'warehouse_id','district_id','upazila_id','status',null,null];
+                $this->column_order = ['id','avatar','name', 'shop_name', 'username', 'warehouse_id','district_id','upazila_id','status',null,null];
             }
         }
         
         
         
-        $query = self::with('district:id,name','upazila:id,name');
-
+        $query = self::with('district:id,name','upazila:id,name','warehouse:id,name');
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('warehouse_id',  auth()->user()->warehouse_id);
+        }
         //search query
         if (!empty($this->_name)) {
             $query->where('name', 'like', '%' . $this->_name . '%');
@@ -138,6 +186,9 @@ class Dealer extends BaseModel
             $query->where('email', 'like', '%' . $this->_email . '%');
         }
 
+        if (!empty($this->_warehouse_id)) {
+            $query->where('warehouse_id',  $this->_warehouse_id);
+        }
         if (!empty($this->_district_id)) {
             $query->where('district_id',  $this->_district_id);
         }
@@ -176,11 +227,88 @@ class Dealer extends BaseModel
 
     public function count_all()
     {
-        return self::toBase()->get()->count();
+        $query = self::toBase();
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('warehouse_id',  auth()->user()->warehouse_id);
+        }
+        return $query->get()->count();
     }
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
+    public function dealer_products_data($request)
+    {
+        $products = [];
+        if($request->has('products'))
+        {                        
+            foreach ($request->products as $key => $value) {
+                $products[$value['id']] = [
+                    "commission_rate"       => $value['commission_rate'],
+                    "commission_percentage" => $value['commission_percentage'],
+                ];
+            }
+        }
+        return $products;
+    }
 
+    public function dealer_coa(string $code,string $head_name,int $dealer_id)
+    {
+        return [
+            'code'              => $code,
+            'name'              => $head_name,
+            'parent_name'       => 'Dealer Receivable',
+            'level'             => 4,
+            'type'              => 'A',
+            'transaction'       => 1,
+            'general_ledger'    => 2,
+            'dealer_id'         => $dealer_id,
+            'budget'            => 2,
+            'depreciation'      => 2,
+            'depreciation_rate' => '0',
+            'status'            => 1,
+            'created_by'        => auth()->user()->name
+        ];
+    }
+
+    public function previous_balance_add($balance, int $dealer_coa_id, string $dealer_name, $warehouse_id) {
+        if(!empty($balance) && !empty($dealer_coa_id) && !empty($dealer_name)){
+            $transaction_id = generator(10);
+
+            // dealer debit for previous balance
+            $cosdr = array(
+                'chart_of_account_id' => $dealer_coa_id,
+                'warehouse_id'        => $warehouse_id,
+                'voucher_no'          => $transaction_id,
+                'voucher_type'        => 'PR Balance',
+                'voucher_date'        => date("Y-m-d"),
+                'description'         => "Dealer $dealer_name previous due $balance",
+                'debit'               => $balance,
+                'credit'              => 0,
+                'posted'              => 1,
+                'approve'             => 1,
+                'created_by'          => auth()->user()->name,
+                'created_at'          => date('Y-m-d H:i:s')
+            );
+            $inventory = array(
+                'chart_of_account_id' => DB::table('chart_of_accounts')->where('code', '10101')->value('id'),
+                'warehouse_id'        => $warehouse_id,
+                'voucher_no'          => $transaction_id,
+                'voucher_type'        => 'PR Balance',
+                'voucher_date'        => date("Y-m-d"),
+                'description'         => 'Inventory credit for old sale to '.$dealer_name,
+                'debit'               => 0,
+                'credit'              => $balance,
+                'posted'              => 1,
+                'approve'             => 1,
+                'created_by'          => auth()->user()->name,
+                'created_at'          => date('Y-m-d H:i:s')
+            ); 
+
+            Transaction::insert([
+                $cosdr,$inventory
+            ]);
+        }
+    }
 
 }

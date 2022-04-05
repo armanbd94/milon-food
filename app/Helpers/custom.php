@@ -13,7 +13,6 @@ define('DEALER_AVATAR_PATH','dealer/');
 define('PURCHASE_DOCUMENT_PATH','purchase-document/');
 define('SALE_DOCUMENT_PATH','sale-document/');
 define('TRANSFER_DOCUMENT_PATH','transfer-document/'); 
-define('ASM_BASE_PATH','http://kohinoor-asm.test/'); 
 
 
 define('GENDER_LABEL',[

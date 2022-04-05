@@ -19,7 +19,8 @@ class CreateDealerProductsTable extends Migration
             $table->foreign('dealer_id')->references('id')->on('dealers');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products');
-            $table->float('commission_amount');
+            $table->float('commission_rate');
+            $table->float('commission_percentage');
             $table->timestamps();
         });
     }

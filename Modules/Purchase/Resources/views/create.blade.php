@@ -6,12 +6,7 @@
 <link rel="stylesheet" href="css/jquery-ui.css" />
 <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
 <style>
-     .small-btn{
-        width: 25px !important;
-        height: 25px !important;
-        padding: 0 !important;
-    }
-    .small-btn i{font-size: 10px !important;} 
+
     .w18{width: 18%;}
 </style>
 @endpush
@@ -92,7 +87,7 @@
                                             </select>
                                         </td>                                        
                                         <td class="material-code_tx_1 text-center" id="material_code_1"  data-row="1"></td>
-                                        <td class="unit-name_1 text-center"  id="unit_name_1"  data-row="1"></td>
+                                        <td class="unit-name_1 unit-name text-center"  id="unit_name_1"  data-row="1"></td>
                                         <td><input type="text" class="form-control qty text-center" name="materials[1][qty]"
                                             id="materials_qty_1" value="1"  data-row="1">
                                         </td>
@@ -122,7 +117,7 @@
                                         <th id="total-tax" class="text-right font-weight-bolder">0.00</th>
                                         {{-- <th id="total-labor-cost" class="text-right font-weight-bolder">0.00</th> --}}
                                         <th id="total" class="text-right font-weight-bolder">0.00</th>
-                                        <th class="text-center"><button type="button" class="btn btn-success small-btn btn-md add-material"><i class="fas fa-plus"></i></button></th>
+                                        <th class="text-center"><button type="button" class="btn btn-success btn-sm small-btn btn-md add-material"><i class="fas fa-plus"></i></button></th>
                                     </tfoot>
                                 </table>
                             </div>
@@ -287,15 +282,15 @@
 <script src="js/moment.js"></script>
 <script src="js/bootstrap-datetimepicker.min.js"></script>
 <script>
-    $("input,select,textarea").bind("keydown", function (e) {
-        var keyCode = e.keyCode || e.which;
-        if(keyCode == 13) {
-            e.preventDefault();
-            $('input, select, textarea')
-            [$('input,select,textarea').index(this)+1].focus();
-        }
-    });
-    
+$("input,select,textarea").bind("keydown", function (e) {
+    var keyCode = e.keyCode || e.which;
+    if(keyCode == 13) {
+        e.preventDefault();
+        $('input, select, textarea')
+        [$('input,select,textarea').index(this)+1].focus();
+    }
+});
+$("#kt_body").addClass("aside-minimize");
 //array data depend on warehouse
 var material_array = [];
 var material_code  = [];
@@ -329,7 +324,7 @@ $(document).ready(function () {
         var row_material_name = "Meterials";
         //var row_material_name = $('#material_table tbody tr:nth-child('+(rowindex + 1)+')').find('td:nth-child(1)').text();
         var row_material_code = $('#material_table tbody tr:nth-child('+(rowindex + 1)+')').find('td:nth-child(2)').text();
-        $('#model-title').text(row_material_name+'('+row_material_code+')');
+        $('#model-title').text(row_material_code);
 
         var qty = $(this).closest('tr').find('.qty').val();
         $('#edit_qty').val(qty);
@@ -349,7 +344,8 @@ $(document).ready(function () {
         temp_unit_operation_value = (unit_operation_value[rowindex]).split(',');
         temp_unit_operation_value.pop();
 
-        $('#edit_unit').empty();
+        console.log();
+        $('#edit_unit').empty('\n\ntemp_unit_name = '+temp_unit_name+'\n temp_unit_operator = '+temp_unit_operator+'\n temp_unit_operation_value = '+temp_unit_operation_value);
 
         $.each(temp_unit_name, function(key,value){
             $('#edit_unit').append('<option value="'+key+'">'+value+'</option>');
@@ -369,11 +365,11 @@ $(document).ready(function () {
             return;
         }
 
-        if(edit_qty < 1)
+        if(edit_qty < 0 && edit_qty != '')
         {
             $('#edit_qty').val(1); 
             edit_qty = 1;
-            notification('error','Quantity can\'t be less than 1');
+            notification('error','Quantity can\'t be less than 0');
         }
 
         var row_unit_operator = unit_operator[rowindex].slice(0,unit_operator[rowindex].indexOf(','));
@@ -391,7 +387,7 @@ $(document).ready(function () {
             material_cost[rowindex] = $('#edit_unit_cost').val() * row_unit_operation_value;
         }
 
-        console.log(material_cost);
+       console.log('\n\n edit_discount = '+edit_discount+'\n edit_qty = '+edit_qty+'\n edit_unit_cost'+edit_unit_cost+'\n row_unit_operator = '+row_unit_operator+'\n row_unit_operation_value = '+row_unit_operation_value+'\n tax_rate_all = '+tax_rate_all+'\n tax_rate = '+tax_rate+'\n tax_name = '+tax_name+'\n material_cost = '+material_cost);
 
         // material_labor_cost[rowindex] = $('#edit_labor_cost').val();
         material_discount[rowindex] = $('#edit_discount').val();
@@ -410,12 +406,15 @@ $(document).ready(function () {
         unit_name[rowindex] = temp_unit_name.toString() + ',';
         unit_operator[rowindex] = temp_unit_operator.toString() + ',';
         unit_operation_value[rowindex] = temp_unit_operation_value.toString() + ',';
+
+        console.log('\n\n material_discount = '+material_discount+'\n position = '+position+'\n temp_operator = '+
+        temp_operator+'\n temp_operation_value = '+temp_operation_value+'\n unit_name ='+unit_name+'\n unit_operator = '+unit_operator+'\n unit_operation_value'+unit_operation_value);
         checkQuantity(edit_qty,false);
     });
 
     $('#material_table').on('keyup','.qty',function(){
         rowindex = $(this).closest('tr').index();
-        if($(this).val() < 1 && $(this).val() != ''){
+        if($(this).val() < 0 && $(this).val() != ''){
             $('#material_table tbody tr:nth-child('+(rowindex + 1)+') .qty').val(1);
             notification('error','Qunatity can\'t be less than 1');
         }
@@ -425,7 +424,7 @@ $(document).ready(function () {
     
     $('#material_table').on('keyup','.net_unit_cost',function(){
         rowindex = $(this).closest('tr').index();
-        if($(this).val() < 1 && $(this).val() != ''){
+        if($(this).val() < 0 && $(this).val() != ''){
             $('#material_table tbody tr:nth-child('+(rowindex + 1)+') .net_unit_cost').val(1);
             notification('error','Net unit price can\'t be less than 1');
         }else{
@@ -546,7 +545,7 @@ $(document).ready(function () {
                                 </select></td>`;
         
         cols += `<td class="text-center material-code_tx_${count}"  id="material_code_${count}" data-row="${count}"></td>`;
-        cols += `<td class="unit-name_${count} text-center" id="unit_name_${count}" data-row="${count}"></td>`;
+        cols += `<td class="unit-name_${count} unit-name text-center" id="unit_name_${count}" data-row="${count}"></td>`;
         cols += `<td><input type="text" class="form-control qty text-center" name="materials[`+count+`][qty]"
             id="materials_`+count+`_qty" value="1" data-row="${count}"></td>`;
 
@@ -630,6 +629,7 @@ function materialSearch(data,row) {
                     unit_name.push(data.unit_name);
                     unit_operator.push(data.unit_operator);
                     unit_operation_value.push(data.unit_operation_value);
+                    console.log('material_discount = '+material_discount+'\n tax rate = '+tax_rate+'\n tax name = '+tax_name+'\n tax method = '+tax_method+'\n unit name = '+unit_name+'\n unit operator = '+unit_operator+'\n unit operation value = '+unit_operation_value);
                     checkQuantity(1,true,input=2);
                 }
             });

@@ -189,14 +189,14 @@ class PurchaseController extends BaseController
 
                     //purchase materials
                     $materials = [];
-                    $labor_cost = $request->labor_cost ? floatval($request->labor_cost) : 0;
-                    $shipping_cost = $request->shipping_cost ? floatval($request->shipping_cost) : 0;
-                    $material_additional_cost = ($request->total_qty > 0) ? ($shipping_cost+$labor_cost) / floatval($request->total_qty) : 0;
+                    // $labor_cost = $request->labor_cost ? floatval($request->labor_cost) : 0;
+                    // $shipping_cost = $request->shipping_cost ? floatval($request->shipping_cost) : 0;
+                    // $material_additional_cost = ($request->total_qty > 0) ? ($shipping_cost+$labor_cost) / floatval($request->total_qty) : 0;
                     if($request->has('materials'))
                     {                        
                         foreach ($request->materials as $key => $value) {
                             $unit = Unit::where('unit_name',$value['unit'])->first();
-                            // dd($unit);
+                            dd($value);
                             if($unit->operator == '*'){
                                 $qty = $value['received'] * $unit->operation_value;
                             }else{
@@ -216,9 +216,10 @@ class PurchaseController extends BaseController
                                 }elseif ($unit->operator == '/') {
                                   	$material_cost = ((floatval($value['subtotal'] + ($value['discount'] / $value['qty'])) / $value['qty']) * $unit->operation_value);
                                 }
-                                
                             }
-                            $material_cost = $material_cost + $material_additional_cost;
+                            dd($qty);
+                            dd($material_cost);
+                            // $material_cost = $material_cost + $material_additional_cost;
 
                             $new_cost = $material->cost > 0 ? (($material_cost + $material->cost)/2) : $material_cost;
                             $materials[$value['id']] = [

@@ -83,7 +83,7 @@ class ProductController extends BaseController
                     $row[] = $value->name;
                     $row[] = $value->category->name;
                     $row[] = number_format($value->cost,2,'.','');
-                    $row[] = $value->base_unit->unit_name.' ('.$value->base_unit->unit_code.')';
+                    $row[] = $value->unit->unit_name.' ('.$value->unit->unit_code.')';
                     // $row[] = $value->unit->unit_name.' ('.$value->unit->unit_code.')';
                     // $row[] = number_format($value->unit_price,2,'.','');
                     $row[] = number_format($value->base_unit_price,2,'.','');

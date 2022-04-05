@@ -18,8 +18,12 @@ class CreateDealersTable extends Migration
             $table->string('name',50);
             $table->string('shop_name',50);
             $table->string('mobile',15);
+            $table->string('username',30)->unique();
+            $table->string('password');
             $table->string('email',50)->nullable();
-            $table->string('image',255)->nullable();
+            $table->string('avatar',255)->nullable();
+            $table->unsignedBigInteger('warehouse_id');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedBigInteger('district_id');
             $table->foreign('district_id')->references('id')->on('locations');
             $table->unsignedBigInteger('upazila_id');
@@ -28,6 +32,7 @@ class CreateDealersTable extends Migration
             $table->enum('status',['1','2'])->default('1')->comment = "1=Active, 2=Inactive";
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
     }

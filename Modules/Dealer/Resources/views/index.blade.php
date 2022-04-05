@@ -18,7 +18,7 @@
                 <div class="card-toolbar">
                     <!--begin::Button-->
                     @if (permission('dealer-add'))
-                    <a href="{{ url('dealer/create') }}" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    <a href="{{ url('dealer/add') }}" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                     @endif
                     <!--end::Button-->
@@ -34,35 +34,29 @@
                         <x-form.textbox labelName="Shop Name" name="shop_name" col="col-md-3" />
                         <x-form.textbox labelName="Dealer Name" name="name" col="col-md-3" />
                         <x-form.textbox labelName="Mobile" name="mobile" col="col-md-3" />
-
                         @if(Auth::user()->warehouse_id)
-                            <input type="hidden" name="warehouse_id" id="warehouse_id" value="{{ Auth::user()->warehouse_id }}">
+                        <input type="hidden" name="warehouse_id" id="warehouse_id" value="{{ Auth::user()->warehouse_id }}">
                         @else
-                            <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-3" class="selectpicker">
+                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required" col="col-md-3" class="selectpicker">
                             @if (!$warehouses->isEmpty())
-                                @foreach ($warehouses as $value)
-                                <option value="{{ $value->id }}" {{ isset($transfer) ? ($transfer->from_warehouse_id == $value->id ? 'selected' : 'disabled') : ''  }}>{{ $value->name }}</option>
+                                @foreach ($warehouses as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
                         @endif
-
-                        <x-form.selectbox labelName="District" name="district_id" col="col-md-3" class="selectpicker" onchange="getUpazilaList(this.value,1)" >
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 1 && $location->parent_id == null)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
+                        <x-form.selectbox labelName="District" name="district_id" col="col-md-3" class="selectpicker" onchange="getUpazilaList(this.value)" >
+                            @if (!$districts->isEmpty())
+                                @foreach ($districts as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
 
-                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-3" class="selectpicker" onchange="getRouteList(this.value,1)" >
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 2 && $location->parent_id == auth()->user()->district_id)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
+                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-3" class="selectpicker">
+                            @if (!$upazilas->isEmpty())
+                                @foreach ($upazilas as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
                                 @endforeach
                             @endif
                         </x-form.selectbox>
@@ -106,6 +100,7 @@
                                         <th>Image</th>
                                         <th>Dealer</th>
                                         <th>Shop Name</th>
+                                        <th>Username</th>
                                         @if(empty(Auth::user()->warehouse_id))
                                         <th>Warehouse</th>
                                         @endif
@@ -127,6 +122,7 @@
         <!--end::Card-->
     </div>
 </div>
+@include('dealer::view')
 @endsection
 
 @push('scripts')
@@ -162,6 +158,7 @@ $(document).ready(function(){
                 data.name              = $("#form-filter #name").val();
                 data.shop_name         = $("#form-filter #shop_name").val();
                 data.mobile            = $("#form-filter #mobile").val();
+                data.warehouse_id       = $("#form-filter #warehouse_id").val();
                 data.district_id       = $("#form-filter #district_id").val();
                 data.upazila_id        = $("#form-filter #upazila_id").val();
                 data.status            = $("#form-filter #status").val();
@@ -171,15 +168,15 @@ $(document).ready(function(){
         "columnDefs": [{
                 @if (permission('dealer-bulk-delete'))
                     @if(empty(Auth::user()->warehouse_id))
-                    "targets": [0,10],
+                    "targets": [0,11],
                     @else
-                    "targets": [0,9],
+                    "targets": [0,10],
                     @endif
                 @else
                     @if(empty(Auth::user()->warehouse_id))
-                    "targets": [9],
+                    "targets": [10],
                     @else
-                    "targets": [8],
+                    "targets": [9],
                     @endif
                 @endif
                 "orderable": false,
@@ -188,15 +185,15 @@ $(document).ready(function(){
             {
                 @if (permission('dealer-bulk-delete'))
                     @if(empty(Auth::user()->warehouse_id))
-                    "targets": [1,2,5,6,7,8],
+                    "targets": [1,2,5,6,7,8,9],
                     @else
-                    "targets": [1,2,5,6,7],
+                    "targets": [1,2,5,6,7,8],
                     @endif
                 @else
                     @if(empty(Auth::user()->warehouse_id))
-                    "targets": [0,1,4,5,6,7],
+                    "targets": [0,1,4,5,6,7,8],
                     @else
-                    "targets": [0,1,4,5,6],
+                    "targets": [0,1,4,5,6,7],
                     @endif
                 @endif
                 "className": "text-center"
@@ -204,15 +201,15 @@ $(document).ready(function(){
             {
                 @if (permission('dealer-bulk-delete'))
                     @if(empty(Auth::user()->warehouse_id))
-                    "targets": [9],
+                    "targets": [10],
                     @else
-                    "targets": [8],
+                    "targets": [9],
                     @endif
                 @else
                     @if(empty(Auth::user()->warehouse_id))
-                    "targets": [8],
+                    "targets": [9],
                     @else
-                    "targets": [7],
+                    "targets": [8],
                     @endif
                 @endif
                 "className": "text-right"
@@ -236,15 +233,15 @@ $(document).ready(function(){
                 "exportOptions": {
                     @if (permission('dealer-bulk-delete'))
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @endif
                     @else
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     @endif
                     
@@ -267,15 +264,15 @@ $(document).ready(function(){
                 "exportOptions": {
                     @if (permission('dealer-bulk-delete'))
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @endif
                     @else
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     @endif
                 }
@@ -289,15 +286,15 @@ $(document).ready(function(){
                 "exportOptions": {
                     @if (permission('dealer-bulk-delete'))
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @endif
                     @else
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     @endif
                 }
@@ -313,15 +310,15 @@ $(document).ready(function(){
                 "exportOptions": {
                     @if (permission('dealer-bulk-delete'))
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(0),:eq(10))' 
+                        columns: ':visible:not(:eq(0),:eq(11))' 
                         @else
-                        columns: ':visible:not(:eq(0),:eq(9))' 
+                        columns: ':visible:not(:eq(0),:eq(10))' 
                         @endif
                     @else
                         @if(empty(Auth::user()->warehouse_id))
-                        columns: ':visible:not(:eq(9))' 
+                        columns: ':visible:not(:eq(10))' 
                         @else
-                        columns: ':visible:not(:eq(8))' 
+                        columns: ':visible:not(:eq(9))' 
                         @endif
                     @endif
                 },
@@ -351,6 +348,28 @@ $(document).ready(function(){
         $('#form-filter')[0].reset();
         $('#form-filter .selectpicker').selectpicker('refresh');
         table.ajax.reload();
+    });
+
+    $(document).on('click', '.view_data', function () {
+        let id = $(this).data('id');
+        if (id) {
+            $.ajax({
+                url: "{{route('dealer.view')}}",
+                type: "POST",
+                data: { id: id,_token: _token},
+                success: function (data) {
+                    $('#view_modal #view-data').html('');
+                    $('#view_modal #view-data').html(data);
+                    $('#view_modal').modal({
+                        keyboard: false,
+                        backdrop: 'static',
+                    });
+                },
+                error: function (xhr, ajaxOption, thrownError) {
+                    console.log(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
+                }
+            });
+        }
     });
 
     $(document).on('click', '.delete_data', function () {
@@ -393,7 +412,22 @@ $(document).ready(function(){
     
 });
 
-
+function getUpazilaList(district_id){
+    $.ajax({
+        url:"{{ url('district-id-wise-upazila-list') }}/"+district_id,
+        type:"GET",
+        dataType:"JSON",
+        success:function(data){
+            html = `<option value="">Select Please</option>`;
+            $.each(data, function(key, value) {
+                html += '<option value="'+ key +'">'+ value +'</option>';
+            });
+            $('#form-filter #upazila_id').empty();
+            $('#form-filter #upazila_id').append(html);
+            $('.selectpicker').selectpicker('refresh');
+        },
+    });
+}
 
 </script>
 @endpush

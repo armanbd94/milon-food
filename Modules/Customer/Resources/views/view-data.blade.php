@@ -43,7 +43,7 @@
         </div>
         <div class="col-md-3 text-center">
             @if($customer->avatar)
-                <img src='{{ ASM_BASE_PATH."storage/".CUSTOMER_AVATAR_PATH.$customer->avatar }}' alt='{{ $customer->name }}' style='width:150px;'/>
+                <img src='{{"storage/".CUSTOMER_AVATAR_PATH.$customer->avatar }}' alt='{{ $customer->name }}' style='width:150px;'/>
             @else
                 <img src='images/male.svg' alt='Default Image' style='width:150px;'/>
             @endif
