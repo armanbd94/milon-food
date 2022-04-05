@@ -25,8 +25,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('change-status', 'DealerController@change_status')->name('change.status');
         Route::get('previous-balance/{id}', 'DealerController@previous_balance');
     });
-    Route::post('dealer-list','DealerController@dealer_list');
-    Route::post('area-wise-dealer-list', 'DealerController@area_wise_dealer_list')->name('area.wise.dealer.list');
+
+    Route::post('upazila-wise-dealer-list', 'DealerController@upazila_wise_dealer_list')->name('upazila.wise.dealer.list');
     //dealer Ledger Routes
     Route::get('dealer-ledger', 'DealerLedgerController@index')->name('dealer.ledger');
     Route::post('dealer-ledger/datatable-data', 'DealerLedgerController@get_datatable_data')->name('dealer.ledger.datatable.data');

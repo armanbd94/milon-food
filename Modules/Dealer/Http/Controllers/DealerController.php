@@ -303,4 +303,19 @@ class DealerController extends BaseController
         return  response()->json($balance);
     }
 
+    public function upazila_wise_dealer_list(Request $request)
+    {
+        if($request->ajax()){
+            $dealers  = $this->model->with('coa')->where([['status',1],['upazila_id',$request->upazila_id]])->orderBy('id','asc')->get();
+            $output = '';
+            if (!$dealers->isEmpty()){
+                $output .= '<option value="">Select Please</option>';
+                foreach ($dealers as $dealer){
+                    $output .=  '<option value="'.$dealer->id.'" data-coaid="'.$dealer->coa->id.'" data-name="'.$dealer->name.'">'. $dealer->name.' - '.$dealer->mobile.'</option>';
+                }
+            }
+            return $output;
+        }
+    }
+
 }
