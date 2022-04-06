@@ -4,6 +4,7 @@ namespace Modules\Customer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
 use Modules\Customer\Entities\PaidCustomer;
 
@@ -19,7 +20,8 @@ class PaidCustomerController extends BaseController
         if(permission('paid-customer-access')){
             $this->setPageData('Paid Customer','Paid Customer','fas fa-users',[['name'=>'Customer','link'=>route('customer')],['name'=>'Paid Customer']]);
             $locations = DB::table('locations')->where('status', 1)->get();
-            return view('customer::paid-customer.index',compact('locations'));
+            $warehouses = Warehouse::where('status',1)->pluck('name','id');
+            return view('customer::paid-customer.index',compact('locations','warehouses'));
         }else{
             return $this->access_blocked();
         }

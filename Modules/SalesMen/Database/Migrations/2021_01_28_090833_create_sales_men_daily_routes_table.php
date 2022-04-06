@@ -17,9 +17,8 @@ class CreateSalesMenDailyRoutesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('salesmen_id');
             $table->foreign('salesmen_id')->references('id')->on('salesmen');
-            $table->enum('day',['1','2','3','4','5','6'])->comment="1=Sat,2=Sun,3=Mon,4=Tue,5=Wed,6=Thu";
-            $table->unsignedBigInteger('route_id');
-            $table->foreign('route_id')->references('id')->on('locations');
+            $table->unsignedBigInteger('area_id');
+            $table->foreign('area_id')->references('id')->on('locations');
             $table->timestamps();
         });
     }

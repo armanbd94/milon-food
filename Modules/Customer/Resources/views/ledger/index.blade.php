@@ -45,6 +45,18 @@
                                 <input type="hidden" id="end_date" name="end_date" value="{{ date('Y-m-d')}}">
                             </div>
                         </div>
+                        @if(Auth::user()->warehouse_id)
+                        <input type="hidden" name="warehouse_id" id="warehouse_id" value="{{ Auth::user()->warehouse_id }}">
+                        @else
+                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-4" class="selectpicker">
+                            @if (!$warehouses->isEmpty())
+                                @foreach ($warehouses as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
+                                @endforeach
+                            @endif
+                        </x-form.selectbox>
+                        @endif
+
                         <x-form.selectbox labelName="District" name="district_id" col="col-md-4" class="selectpicker" onchange="getUpazilaList(this.value,1);customer_list();" >
                             @if (!$locations->isEmpty())
                                 @foreach ($locations as $location)
@@ -54,20 +66,10 @@
                                 @endforeach
                             @endif
                         </x-form.selectbox>
-                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker" onchange="getRouteList(this.value,1);customer_list();" >
+                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker" onchange="getAreaList(this.value,1);customer_list();" >
                             @if (!$locations->isEmpty())
                                 @foreach ($locations as $location)
                                     @if ($location->type == 2 && $location->parent_id == auth()->user()->district_id)
-                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endif
-                                @endforeach
-                            @endif
-                        </x-form.selectbox>
-
-                        <x-form.selectbox labelName="Route" name="route_id" col="col-md-4" class="selectpicker" onchange="getAreaList(this.value,1);customer_list();">
-                            @if (!$locations->isEmpty())
-                                @foreach ($locations as $location)
-                                    @if ($location->type == 3 && $location->grand_parent_id == auth()->user()->district_id)
                                     <option value="{{ $location->id }}">{{ $location->name }}</option>
                                     @endif
                                 @endforeach
@@ -85,7 +87,7 @@
                         </x-form.selectbox>
                         <x-form.selectbox labelName="Customer" name="customer_id" col="col-md-4" class="selectpicker"/>
                         
-                        <div class="col-md-12">
+                        <div class="{{ Auth::user()->warehouse_id ? 'col-md-4' : 'col-md-12' }}">
                             <div style="margin-top:28px;">     
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -108,6 +110,8 @@
                                 <thead class="bg-primary">
                                     <tr>
                                         <th>Date</th>
+                                        <th>Warehouse</th>
+                                        <th>Voucher Type</th>
                                         <th>Narration</th>
                                         <th>Voucher No</th>
                                         <th>Debit</th>
@@ -118,6 +122,8 @@
                                 <tbody></tbody>
                                 <tfoot>
                                     <tr class="bg-primary">
+                                        <th></th>
+                                        <th></th>
                                         <th></th>
                                         <th></th>
                                         <th style="text-align: right !important;font-weight:bold;">Total</th>
@@ -181,7 +187,7 @@ $(document).ready(function(){
             "data": function (data) {
                 data.district_id = $("#form-filter #district_id").val();
                 data.upazila_id  = $("#form-filter #upazila_id").val();
-                data.route_id    = $("#form-filter #route_id").val();
+                data.warehouse_id    = $("#form-filter #warehouse_id").val();
                 data.area_id     = $("#form-filter #area_id").val();
                 data.customer_id = $("#form-filter #customer_id").val();
                 data.start_date  = $("#form-filter #start_date").val();
@@ -191,11 +197,11 @@ $(document).ready(function(){
         },
         "columnDefs": [
             {
-                "targets": [0,2],
+                "targets": [0,1,2,4],
                 "className": "text-center"
             },
             {
-                "targets": [3,4,5],
+                "targets": [5,6,7],
                 "className": "text-right"
             },
         ],
@@ -293,7 +299,7 @@ $(document).ready(function(){
             var currency_symbol = "{{ config('settings.currency_symbol') }}";
             var currency_position = "{{ config('settings.currency_position') }}";
             // Total over all pages
-            for (let index = 3; index <= 4; index++) {
+            for (let index = 5; index <= 6; index++) {
                 // Total over this page
                 pageTotal = api
                     .column( index, { page: 'current'} )
@@ -301,7 +307,7 @@ $(document).ready(function(){
                     .reduce( function (a, b) {
                         return intVal(a) + intVal(b);
                     }, 0 );
-                    if(index == 3){
+                    if(index == 5){
                         debit = pageTotal;
                     }else{
                         credit = pageTotal;
@@ -311,10 +317,10 @@ $(document).ready(function(){
                 
                 var total = (currency_position == 1) ? currency_symbol+' '+number_format(pageTotal) : number_format(pageTotal)+' '+currency_symbol;
                 // Update footer
-                $(api.column( index ).footer()).html('= '+total+' Tk');
+                $(api.column( index ).footer()).html('= '+total);
             }
             balance = (currency_position == 1) ? currency_symbol+' '+number_format((debit - credit)) : number_format((debit - credit))+' '+currency_symbol;
-            $(api.column(5).footer()).html('= '+balance+' Tk');
+            $(api.column(7).footer()).html('= '+balance);
         }
     });
 
@@ -336,12 +342,11 @@ function customer_list()
 {
     let district_id = document.getElementById('district_id').value;
     let upazila_id = document.getElementById('upazila_id').value;
-    let route_id = document.getElementById('route_id').value;
     let area_id = document.getElementById('area_id').value;
     $.ajax({
         url:"{{ url('customer-list') }}",
         type:"POST",
-        data:{district_id:district_id,upazila_id:upazila_id,route_id:route_id,area_id:area_id,_token:_token},
+        data:{district_id:district_id,upazila_id:upazila_id,area_id:area_id,_token:_token},
         dataType:"JSON",
         success:function(data){
             html = `<option value="">Select Please</option>`;
@@ -382,36 +387,9 @@ function getUpazilaList(district_id,selector,upazila_id=''){
         },
     });
 }
-function getRouteList(upazila_id,selector,route_id=''){
+function getAreaList(upazila_id,selector,area_id=''){
     $.ajax({
-        url:"{{ url('upazila-id-wise-route-list') }}/"+upazila_id,
-        type:"GET",
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += '<option value="'+ key +'">'+ value +'</option>';
-            });
-            if(selector == 1)
-            {
-                $('#form-filter #route_id').empty();
-                $('#form-filter #route_id').append(html);
-            }else{
-                $('#store_or_update_form #route_id').empty();
-                $('#store_or_update_form #route_id').append(html);
-            }
-            $('.selectpicker').selectpicker('refresh');
-            if(route_id){
-                $('#store_or_update_form #route_id').val(route_id);
-                $('#store_or_update_form #route_id.selectpicker').selectpicker('refresh');
-            }
-      
-        },
-    });
-}
-function getAreaList(route_id,selector,area_id=''){
-    $.ajax({
-        url:"{{ url('route-id-wise-area-list') }}/"+route_id,
+        url:"{{ url('upazila-id-wise-area-list') }}/"+upazila_id,
         type:"GET",
         dataType:"JSON",
         success:function(data){
@@ -436,5 +414,6 @@ function getAreaList(route_id,selector,area_id=''){
         },
     });
 }
+
 </script>
 @endpush

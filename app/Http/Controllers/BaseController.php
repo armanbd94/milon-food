@@ -152,7 +152,7 @@ class BaseController extends Controller
                 return 10202;
                 break;
             case 'customer_receivable':
-                return 10202010001;
+                return 102020100001;
                 break;
             case '1_walking_customer':
                 return 10202010001;

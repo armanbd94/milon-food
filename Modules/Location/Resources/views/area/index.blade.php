@@ -17,8 +17,8 @@
                 </div>
                 <div class="card-toolbar">
                     <!--begin::Button-->
-                    @if (permission('route-add'))
-                    <a href="javascript:void(0);" onclick="showFormModal('Add New Route','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
+                    @if (permission('area-add'))
+                    <a href="javascript:void(0);" onclick="showFormModal('Add New Area','Save')" class="btn btn-primary btn-sm font-weight-bolder"> 
                         <i class="fas fa-plus-circle"></i> Add New</a>
                         @endif
                     <!--end::Button-->
@@ -31,7 +31,7 @@
             <div class="card-header flex-wrap py-5">
                 <form method="POST" id="form-filter" class="col-md-12 px-0">
                     <div class="row">
-                        <x-form.textbox labelName="Route Name" name="route_name" col="col-md-4" />
+                        <x-form.textbox labelName="Area Name" name="area_name" col="col-md-4" />
                         <x-form.selectbox labelName="District" name="grand_parent_id" col="col-md-4" class="selectpicker" onchange="getUpazilaList(this.value,1)">
                             @if (!$districts->isEmpty())
                                 @foreach ($districts as $district)
@@ -48,8 +48,7 @@
                         </x-form.selectbox>
 
                         <div class="col-md-12">
-                            <div style="margin-top:0px;">    
-                                <div style="margin-top:0px;">    
+                            <div style="margin-top:28px;">    
                                     <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Reset">
                                     <i class="fas fa-undo-alt"></i></button>
@@ -57,7 +56,6 @@
                                     <button id="btn-filter" class="btn btn-primary btn-sm btn-elevate btn-icon mr-2 float-right" type="button"
                                     data-toggle="tooltip" data-theme="dark" title="Search">
                                     <i class="fas fa-search"></i></button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -71,7 +69,7 @@
                             <table id="dataTable" class="table table-bordered table-hover">
                                 <thead class="bg-primary">
                                     <tr>
-                                        @if (permission('route-bulk-delete'))
+                                        @if (permission('area-bulk-delete'))
                                         <th>
                                             <div class="custom-control custom-checkbox">
                                                 <input type="checkbox" class="custom-control-input" id="select_all" onchange="select_all()">
@@ -80,7 +78,7 @@
                                         </th>
                                         @endif
                                         <th>Sl</th>
-                                        <th>Route Name</th>
+                                        <th>Area Name</th>
                                         <th>Upazila Name</th>
                                         <th>District Name</th>
                                         <th>Status</th>
@@ -98,7 +96,7 @@
         <!--end::Card-->
     </div>
 </div>
-@include('location::upazila-route.modal')
+@include('location::area.modal')
 @endsection
 
 @push('scripts')
@@ -126,17 +124,17 @@
                 zeroRecords: '<strong class="text-danger">No Data Found</strong>'
             },
             "ajax": {
-                "url": "{{route('upazila.route.datatable.data')}}",
+                "url": "{{route('area.datatable.data')}}",
                 "type": "POST",
                 "data": function (data) {
-                    data.route_name      = $("#form-filter #route_name").val();
+                    data.area_name      = $("#form-filter #area_name").val();
                     data.grand_parent_id = $("#form-filter #grand_parent_id").val();
                     data.parent_id       = $("#form-filter #parent_id").val();
                     data._token          = _token;
                 }
             },
             "columnDefs": [{
-                    @if (permission('route-bulk-delete'))
+                    @if (permission('area-bulk-delete'))
                     "targets": [0,6],
                     @else 
                     "targets": [5],
@@ -145,7 +143,7 @@
                     "className": "text-center"
                 },
                 {
-                    @if (permission('route-bulk-delete'))
+                    @if (permission('area-bulk-delete'))
                     "targets": [1,5],
                     @else 
                     "targets": [0,4],
@@ -158,7 +156,6 @@
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'<'float-right'p>>>",
     
             "buttons": [
-                @if (permission('route-report'))
                 {
                     'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
                 },
@@ -216,8 +213,7 @@
                         }
                     },
                 },
-                @endif 
-                @if (permission('route-bulk-delete'))
+                @if (permission('area-bulk-delete'))
                 {
                     'className':'btn btn-danger btn-sm delete_btn d-none text-white',
                     'text':'Delete',
@@ -242,7 +238,7 @@
         $(document).on('click', '#save-btn', function () {
             let form = document.getElementById('store_or_update_form');
             let formData = new FormData(form);
-            let url = "{{route('upazila.route.store.or.update')}}";
+            let url = "{{route('area.store.or.update')}}";
             let id = $('#update_id').val();
             let method;
             if (id) {
@@ -261,7 +257,7 @@
             $('#store_or_update_form').find('.error').remove();
             if (id) {
                 $.ajax({
-                    url: "{{route('upazila.route.edit')}}",
+                    url: "{{route('area.edit')}}",
                     type: "POST",
                     data: { id: id,_token: _token},
                     dataType: "JSON",
@@ -295,7 +291,7 @@
             let id    = $(this).data('id');
             let name  = $(this).data('name');
             let row   = table.row($(this).parent('tr'));
-            let url   = "{{ route('upazila.route.delete') }}";
+            let url   = "{{ route('area.delete') }}";
             delete_data(id, url, table, row, name);
         });
     
@@ -314,7 +310,7 @@
                     icon: 'warning',
                 });
             }else{
-                let url = "{{route('upazila.route.bulk.delete')}}";
+                let url = "{{route('area.bulk.delete')}}";
                 bulk_delete(ids,url,table,rows);
             }
         }
@@ -324,7 +320,7 @@
             let name   = $(this).data('name');
             let status = $(this).data('status');
             let row    = table.row($(this).parent('tr'));
-            let url    = "{{ route('upazila.route.change.status') }}";
+            let url    = "{{ route('area.change.status') }}";
             change_status(id, url, table, row, name, status);
         });
     

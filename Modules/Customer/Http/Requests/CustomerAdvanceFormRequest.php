@@ -17,7 +17,6 @@ class CustomerAdvanceFormRequest extends FormRequest
         $this->rules['warehouse_id'] = ['required'];
         $this->rules['district_id'] = ['required'];
         $this->rules['upazila_id'] = ['required'];
-        $this->rules['route_id'] = ['required'];
         $this->rules['area_id'] = ['required'];
         $this->rules['customer'] = ['required'];
         $this->rules['type'] = ['required'];

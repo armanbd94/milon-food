@@ -26,8 +26,6 @@ class CreateCustomersTable extends Migration
             $table->foreign('district_id')->references('id')->on('locations');
             $table->unsignedBigInteger('upazila_id');
             $table->foreign('upazila_id')->references('id')->on('locations');
-            $table->unsignedBigInteger('route_id');
-            $table->foreign('route_id')->references('id')->on('locations');
             $table->unsignedBigInteger('area_id');
             $table->foreign('area_id')->references('id')->on('locations');
             $table->text('address')->nullable();

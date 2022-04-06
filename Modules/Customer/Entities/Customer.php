@@ -5,22 +5,26 @@ namespace Modules\Customer\Entities;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\DB;
 use Modules\Location\Entities\Area;
-use Modules\Location\Entities\Route;
 use Illuminate\Support\Facades\Cache;
 use Modules\Location\Entities\Upazila;
 use Modules\Location\Entities\District;
+use Modules\Setting\Entities\Warehouse;
 use Modules\Account\Entities\Transaction;
 use Modules\Setting\Entities\CustomerGroup;
 use Modules\Account\Entities\ChartOfAccount;
 
 class Customer extends BaseModel
 {
-    protected $fillable = [ 'name', 'shop_name', 'mobile', 'email', 'avatar', 'customer_group_id',
-     'district_id', 'upazila_id', 'route_id', 'area_id', 'address', 'status', 'created_by', 'modified_by'];
+    protected $fillable = [ 'name', 'shop_name', 'mobile', 'email', 'avatar', 'customer_group_id','warehouse_id',
+     'district_id', 'upazila_id', 'area_id', 'address', 'status', 'created_by', 'modified_by'];
 
     public function customer_group()
     {
         return $this->belongsTo(CustomerGroup::class,'customer_group_id','id');
+    }
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class,'warehouse_id','id');
     }
     public function district()
     {
@@ -30,10 +34,7 @@ class Customer extends BaseModel
     {
         return $this->belongsTo(Upazila::class,'upazila_id','id');
     }
-    public function route()
-    {
-        return $this->belongsTo(Route::class,'route_id','id');
-    }
+
     public function area()
     {
         return $this->belongsTo(Area::class,'area_id','id');
@@ -59,7 +60,7 @@ class Customer extends BaseModel
         {
             $balance = $data->balance ? $data->balance : 0;
         }
-        return number_format($balance,2,'.',',');
+        return $balance;
     }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
@@ -72,8 +73,8 @@ class Customer extends BaseModel
     protected $_customer_group_id; 
     protected $_area_id; 
     protected $_district_id; 
+    protected $_warehouse_id; 
     protected $_upazila_id; 
-    protected $_route_id; 
     protected $_status; 
 
     //methods to set custom search property value
@@ -97,6 +98,10 @@ class Customer extends BaseModel
     {
         $this->_customer_group_id = $customer_group_id;
     }
+    public function setWarehouseID($warehouse_id)
+    {
+        $this->_warehouse_id = $warehouse_id;
+    }
     public function setDistrictID($district_id)
     {
         $this->_district_id = $district_id;
@@ -109,10 +114,7 @@ class Customer extends BaseModel
     {
         $this->_area_id = $area_id;
     }
-    public function setRouteID($route_id)
-    {
-        $this->_route_id = $route_id;
-    }
+
     public function setStatus($status)
     {
         $this->_status = $status;
@@ -123,10 +125,14 @@ class Customer extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
-        $this->column_order = ['id','id','name', 'shop_name', 'mobile', 'customer_group_id','district_id','upazila_id','route_id', 'area_id','status',null,null];
+        $this->column_order = ['id','id','name', 'customer_group_id','warehouse_id','district_id','upazila_id','area_id','status',null,null];
         
         
-        $query = self::with('customer_group','district','upazila','route','area');
+        $query = self::with('customer_group','district','upazila','area','warehouse');
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('warehouse_id',  auth()->user()->warehouse_id);
+        }
 
         //search query
         if (!empty($this->_name)) {
@@ -144,6 +150,9 @@ class Customer extends BaseModel
         if (!empty($this->_customer_group_id)) {
             $query->where('customer_group_id',  $this->_customer_group_id);
         }
+        if (!empty($this->_warehouse_id)) {
+            $query->where('warehouse_id',  $this->_warehouse_id);
+        }
         if (!empty($this->_district_id)) {
             $query->where('district_id',  $this->_district_id);
         }
@@ -153,9 +162,7 @@ class Customer extends BaseModel
         if (!empty($this->_upazila_id)) {
             $query->where('upazila_id',  $this->_upazila_id);
         }
-        if (!empty($this->_route_id)) {
-            $query->where('route_id',  $this->_route_id);
-        }
+
         if (!empty($this->_status)) {
             $query->where('status', $this->_status);
         }
@@ -186,7 +193,12 @@ class Customer extends BaseModel
 
     public function count_all()
     {
-        return self::toBase()->get()->count();
+        $query = self::toBase();
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('warehouse_id',  auth()->user()->warehouse_id);
+        }
+        return $query->get()->count();
     }
     /******************************************
      * * * End :: Custom Datatable Code * * *

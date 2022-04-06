@@ -28,7 +28,7 @@ class CustomerController extends BaseController
         if(permission('customer-access')){
             $this->setPageData('Customer','Customer','far fa-handshake',[['name'=>'Customer']]);
             $data = [
-                'warehouses'      => Warehouse::where('status',1)->get(),
+                'warehouses'      => Warehouse::where('status',1)->pluck('name','id'),
                 'customer_groups' => CustomerGroup::where('status',1)->get(),
                 'locations'       => DB::table('locations')->where('status', 1)->get(),
             ];
@@ -58,6 +58,9 @@ class CustomerController extends BaseController
                 if (!empty($request->customer_group_id)) {
                     $this->model->setCustomerGroupID($request->customer_group_id);
                 }
+                if (!empty($request->warehouse_id)) {
+                    $this->model->setWarehouseID($request->district_id);
+                }
                 if (!empty($request->district_id)) {
                     $this->model->setDistrictID($request->district_id);
                 }
@@ -66,9 +69,6 @@ class CustomerController extends BaseController
                 }
                 if (!empty($request->upazila_id)) {
                     $this->model->setUpazilaID($request->upazila_id);
-                }
-                if (!empty($request->route_id)) {
-                    $this->model->setRouteID($request->route_id);
                 }
                 if (!empty($request->status)) {
                     $this->model->setStatus($request->status);
@@ -102,13 +102,11 @@ class CustomerController extends BaseController
                     }
                     $row[] = $no;
                     $row[] = $avatar;
-                    $row[] = $value->name;
-                    $row[] = $value->shop_name;
-                    $row[] = $value->mobile;
+                    $row[] = $value->name.'<br><b>Shop Name: </b>'.$value->shop_name.'<br><b>Mobile No.: </b>'.$value->mobile;
                     $row[] = $value->customer_group->group_name;
+                    $row[] = $value->warehouse->name;
                     $row[] = $value->district->name;
                     $row[] = $value->upazila->name;
-                    $row[] = $value->route->name;
                     $row[] = $value->area->name;
                     $row[] = permission('customer-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
                     $row[] = $this->model->customer_balance($value->id);
@@ -134,11 +132,13 @@ class CustomerController extends BaseController
                     $avatar = !empty($request->old_avatar) ? $request->old_avatar : null;
                     if($request->hasFile('avatar')){
                         $avatar  = $this->upload_file($request->file('avatar'),CUSTOMER_AVATAR_PATH);
+                        $collection   = $collection->merge(compact('avatar'));
                         if(!empty($request->old_avatar)){
                             $this->delete_file($request->old_avatar, CUSTOMER_AVATAR_PATH);
                         }  
+
                     }
-                    $collection   = $collection->merge(compact('avatar'));
+                    
                     $customer     = $this->model->updateOrCreate(['id'=>$request->update_id],$collection->all());
                     $output       = $this->store_message($customer, $request->update_id);
                     if(empty($request->update_id))
@@ -147,12 +147,11 @@ class CustomerController extends BaseController
                         $code              = $coa_max_code ? ($coa_max_code + 1) : $this->coa_head_code('customer_receivable');
                         $head_name         = $customer->id.'-'.$customer->name;
                         $customer_coa_data = $this->customer_coa($code,$head_name,$customer->id);
-                        
                         $customer_coa      = ChartOfAccount::create($customer_coa_data);
                         if(!empty($request->previous_balance))
                         {
                             if($customer_coa){
-                                $this->previous_balance_add($request->previous_balance,$customer_coa->id,$customer->name);
+                                $this->previous_balance_add($request->previous_balance,$customer_coa->id,$customer->name,$request->warehouse_id);
                             }
                         }
                     }else{
@@ -189,7 +188,6 @@ class CustomerController extends BaseController
             'transaction'       => 1,
             'general_ledger'    => 2,
             'customer_id'       => $customer_id,
-            'supplier_id'       => null,
             'budget'            => 2,
             'depreciation'      => 2,
             'depreciation_rate' => '0',
@@ -198,10 +196,9 @@ class CustomerController extends BaseController
         ];
     }
 
-    private function previous_balance_add($balance, int $customer_coa_id, string $customer_name) {
+    private function previous_balance_add($balance, int $customer_coa_id, string $customer_name,  $warehouse_id) {
         if(!empty($balance) && !empty($customer_coa_id) && !empty($customer_name)){
             $transaction_id = generator(10);
-            $warehouse_id = 1;
             // customer debit for previous balance
             $cosdr = array(
                 'chart_of_account_id' => $customer_coa_id,
@@ -259,7 +256,7 @@ class CustomerController extends BaseController
     {
         if($request->ajax()){
             if(permission('customer-view')){
-                $customer   = $this->model->with(['customer_group','district','upazila','route','area'])->findOrFail($request->id);
+                $customer   = $this->model->with(['customer_group','district','upazila','area'])->findOrFail($request->id);
                 return view('customer::view-data',compact('customer'))->render();
             }
         }
@@ -317,7 +314,6 @@ class CustomerController extends BaseController
         if($request->ajax()){
             $district_id = $request->district_id;
             $upazila_id  = $request->upazila_id;
-            $route_id    = $request->route_id;
             $area_id     = $request->area_id;
             $data = DB::table('customers')
                     ->select('id','name','shop_name','mobile')
@@ -326,9 +322,6 @@ class CustomerController extends BaseController
                     })
                     ->when($upazila_id, function($q) use ($upazila_id){
                         $q->where('upazila_id',$upazila_id);
-                    })
-                    ->when($route_id, function($q) use ($route_id){
-                        $q->where('route_id',$route_id);
                     })
                     ->when($area_id, function($q) use ($area_id){
                         $q->where('area_id',$area_id);

@@ -24,13 +24,12 @@ class CreateSalesmenTable extends Migration
             $table->string('password');
             $table->unsignedBigInteger('warehouse_id');
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
+            $table->unsignedBigInteger('asm_id');
+            $table->foreign('asm_id')->references('id')->on('users');
             $table->unsignedBigInteger('district_id');
             $table->foreign('district_id')->references('id')->on('locations');
             $table->unsignedBigInteger('upazila_id');
             $table->foreign('upazila_id')->references('id')->on('locations');
-            $table->string('nid_no')->nullable();
-            $table->double('monthly_target_value')->nullable();
-            $table->text('address')->nullable();
             $table->enum('status',['1','2'])->default('1')->comment = "1=Active, 2=Inactive";
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();

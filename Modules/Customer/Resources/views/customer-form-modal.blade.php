@@ -33,6 +33,17 @@
                           @endforeach
                       @endif
                     </x-form.selectbox>
+                    @if(Auth::user()->warehouse_id)
+                    <input type="hidden" name="warehouse_id" id="warehouse_id" value="{{ Auth::user()->warehouse_id }}">
+                    @else
+                    <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-6" class="selectpicker">
+                        @if (!$warehouses->isEmpty())
+                            @foreach ($warehouses as $id => $name)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        @endif
+                    </x-form.selectbox>
+                    @endif
                     <x-form.selectbox labelName="District" name="district_id" required="required" onchange="getUpazilaList(this.value,2)" col="col-md-6" class="selectpicker">
                       @if (!$locations->isEmpty())
                           @foreach ($locations as $location)
@@ -42,8 +53,7 @@
                           @endforeach
                       @endif
                     </x-form.selectbox>
-                    <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-6" required="required" class="selectpicker" onchange="getRouteList(this.value,2)"/>
-                    <x-form.selectbox labelName="Route" name="route_id" col="col-md-6" required="required" class="selectpicker" onchange="getAreaList(this.value,2)"/>
+                    <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-6" required="required" class="selectpicker" onchange="getAreaList(this.value,2)"/>
                     <x-form.selectbox labelName="Area" name="area_id" col="col-md-6" required="required" class="selectpicker"/>
                     <x-form.textbox labelName="Previous Balance" name="previous_balance" col="col-md-6 pbalance" placeholder="Previous credit balalnce"/>
                     <x-form.textarea labelName="Customer Address" name="address" col="col-md-6" required="required" placeholder="Enter customer address"/>

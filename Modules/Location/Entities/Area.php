@@ -7,19 +7,14 @@ use App\Models\BaseModel;
 class Area extends BaseModel
 {
     protected $table='locations';
-    protected $fillable = ['name','parent_id','grand_parent_id','grand_grand_parent_id','type','status','created_by','modified_by'];
+    protected $fillable = ['name','parent_id','grand_parent_id','type','status','created_by','modified_by'];
 
     public function district()
-    {
-        return $this->belongsTo(District::class,'grand_grand_parent_id','id');
-    }
-
-    public function upazila()
     {
         return $this->belongsTo(District::class,'grand_parent_id','id');
     }
 
-    public function route()
+    public function upazila()
     {
         return $this->belongsTo(Upazila::class,'parent_id','id');
     }
@@ -31,7 +26,6 @@ class Area extends BaseModel
     protected $areaName; 
     protected $parentID; 
     protected $grandParentID; 
-    protected $grandGrandParentID; 
 
     //methods to set custom search property value
     public function setName($areaName)
@@ -46,22 +40,18 @@ class Area extends BaseModel
     {
         $this->grandParentID = $grandParentID;
     }
-    public function setGrandGrandParentID($grandGrandParentID)
-    {
-        $this->grandGrandParentID = $grandGrandParentID;
-    }
 
 
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
-        if (permission('area-bulk-delete')){
-            $this->column_order = [null,'id','name','parent_id','grand_parent_id','grand_grand_parent_id','status',null];
+        if (permission('route-bulk-delete')){
+            $this->column_order = [null,'id','name','parent_id','grand_parent_id','status',null];
         }else{
-            $this->column_order = ['id','name','parent_id','grand_parent_id','grand_grand_parent_id','status',null];
+            $this->column_order = ['id','name','parent_id','grand_parent_id','status',null];
         }
         
-        $query = self::with('route','upazila','district')->where(['type'=>4]);
+        $query = self::with('upazila','district')->where(['type'=>3]);
 
         //search query
         if (!empty($this->areaName)) {
@@ -72,9 +62,6 @@ class Area extends BaseModel
         }
         if (!empty($this->grandParentID)) {
             $query->where('grand_parent_id', $this->grandParentID);
-        }
-        if (!empty($this->grandGrandParentID)) {
-            $query->where('grand_grand_parent_id', $this->grandGrandParentID);
         }
 
         //order by data fetching code
@@ -103,14 +90,14 @@ class Area extends BaseModel
 
     public function count_all()
     {
-        return self::toBase()->where(['type'=>4])->get()->count();
+        return self::toBase()->where(['type'=>3])->get()->count();
     }
     /******************************************
      * * * End :: Custom Datatable Code * * *
     *******************************************/
 
 
-    public function route_id_wise_area_list(int $id)
+    public function upazila_id_wise_area_list(int $id)
     {
         return self::where('parent_id',$id)->pluck('name','id');
     }

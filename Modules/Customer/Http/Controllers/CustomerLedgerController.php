@@ -4,6 +4,7 @@ namespace Modules\Customer\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
 use Modules\Customer\Entities\CustomerLedger;
 
@@ -19,7 +20,8 @@ class CustomerLedgerController extends BaseController
         if(permission('customer-ledger-access')){
             $this->setPageData('Customer Ledger','Customer Ledger','fas fa-file-invoice-dollar',[['name'=>'Customer','link'=>route('customer')],['name'=>'Customer Ledger']]);
             $locations = DB::table('locations')->where('status', 1)->get();
-            return view('customer::ledger.index',compact('locations'));
+            $warehouses = Warehouse::where('status',1)->pluck('name','id');
+            return view('customer::ledger.index',compact('locations','warehouses'));
         }else{
             return $this->access_blocked();
         }
@@ -43,6 +45,9 @@ class CustomerLedgerController extends BaseController
             if (!empty($request->customer_id)) {
                 $this->model->setCustomerID($request->customer_id);
             }
+            if (!empty($request->warehouse_id)) {
+                $this->model->setWarehouseID($request->district_id);
+            }
             if (!empty($request->start_date)) {
                 $this->model->setStartDate($request->start_date);
             }
@@ -60,6 +65,8 @@ class CustomerLedgerController extends BaseController
                 $balance = $debit - $credit;
                 $row = [];
                 $row[] = $value->voucher_date;
+                $row[] = $value->warehouse_name;
+                $row[] = $value->voucher_type;
                 $row[] = $value->description;
                 $row[] = $value->voucher_no;
                 $row[] = $value->debit ? number_format($value->debit,2, '.', ',') :  number_format(0,2, '.', ',');

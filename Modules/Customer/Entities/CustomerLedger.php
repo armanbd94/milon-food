@@ -4,6 +4,7 @@ namespace Modules\Customer\Entities;
 
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\Auth;
+use Modules\Setting\Entities\Warehouse;
 use Modules\Account\Entities\ChartOfAccount;
 
 
@@ -23,18 +24,21 @@ class CustomerLedger extends BaseModel
     {
         return $this->hasOneThrough(Customer::class,ChartOfAccount::class,'customer_id','chart_of_account_id','id','id');
     }
-
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class,'warehouse_id','id');
+    }
     /******************************************
      * * * Begin :: Custom Datatable Code * * *
     *******************************************/
     //custom search column property
     protected $_district_id; 
     protected $_upazila_id; 
-    protected $_route_id; 
     protected $_area_id; 
+    protected $_warehouse_id;
     protected $_customer_id; 
-    protected $start_date; 
-    protected $end_date; 
+    protected $_start_date; 
+    protected $_end_date; 
 
     //methods to set custom search property value
     public function setCustomerID($customer_id)
@@ -43,11 +47,11 @@ class CustomerLedger extends BaseModel
     }
     public function setStartDate($start_date)
     {
-        $this->start_date = $start_date;
+        $this->_start_date = $start_date;
     }
     public function setEndDate($end_date)
     {
-        $this->end_date = $end_date;
+        $this->_end_date = $end_date;
     }
     public function setDistrictID($district_id)
     {
@@ -57,27 +61,32 @@ class CustomerLedger extends BaseModel
     {
         $this->_upazila_id = $upazila_id;
     }
-    public function setRouteID($route_id)
-    {
-        $this->_route_id = $route_id;
-    }
+
     public function setAreaID($area_id)
     {
         $this->_area_id = $area_id;
+    }
+    public function setWarehouseID($warehouse_id)
+    {
+        $this->_warehouse_id = $warehouse_id;
     }
 
     private function get_datatable_query()
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
-        $this->column_order = ['transactions.voucher_date','transactions.description', 'transactions.voucher_no','transactions.debit','transactions.credit',null];
+        $this->column_order = ['transactions.voucher_date','transaction.warehouse_id','transactions.voucher_type','transactions.description', 'transactions.voucher_no','transactions.debit','transactions.credit',null];
         
         $query = self::select('transactions.*','coa.id as coa_id','coa.code','coa.name','coa.parent_name',
-        'c.id as customer_id','c.shop_name','c.name','c.mobile')
+        'c.id as customer_id','c.shop_name','c.name','c.mobile','w.name as warehouse_name')
+        ->join('warehouses as w','transactions.warehouse_id','=','w.id')
         ->join('chart_of_accounts as coa','transactions.chart_of_account_id','=','coa.id')
         ->join('customers as c','coa.customer_id','c.id')
         ->where('transactions.approve',1);
-
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('transactions.warehouse_id',  auth()->user()->warehouse_id);
+        }
         //search query
         if (!empty($this->_customer_id)) {
             $query->where('c.id', $this->_customer_id);
@@ -88,17 +97,14 @@ class CustomerLedger extends BaseModel
         if (!empty($this->_upazila_id)) {
             $query->where('c.upazila_id', $this->_upazila_id);
         }
-        if (!empty($this->_route_id)) {
-            $query->where('c.route_id', $this->_route_id);
-        }
         if (!empty($this->_area_id)) {
             $query->where('c.area_id', $this->_area_id);
         }
-        if (!empty($this->start_date)) {
-            $query->where('transactions.voucher_date', '>=',$this->start_date);
+        if (!empty($this->_start_date)) {
+            $query->where('transactions.voucher_date', '>=',$this->_start_date);
         }
-        if (!empty($this->end_date)) {
-            $query->where('transactions.voucher_date', '<=',$this->end_date);
+        if (!empty($this->_end_date)) {
+            $query->where('transactions.voucher_date', '<=',$this->_end_date);
         }
 
         //order by data fetching code
@@ -127,11 +133,15 @@ class CustomerLedger extends BaseModel
 
     public function count_all()
     {
-        return self::select('transactions.*','coa.id as coa_id','coa.code','coa.name','coa.parent_name','c.id as customer_id','c.shop_name','c.name','c.mobile')
+        $query = self::select('transactions.*','coa.id as coa_id','coa.code','coa.name','coa.parent_name','c.id as customer_id','c.shop_name','c.name','c.mobile')
         ->join('chart_of_accounts as coa','transactions.chart_of_account_id','=','coa.id')
         ->join('customers as c','coa.customer_id','c.id')
-        ->where('transactions.approve',1)
-        ->get()->count();
+        ->where('transactions.approve',1);
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('transactions.warehouse_id',  auth()->user()->warehouse_id);
+        }
+        return $query->get()->count();
     }
     /******************************************
      * * * End :: Custom Datatable Code * * *

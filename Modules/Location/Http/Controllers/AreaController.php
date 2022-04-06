@@ -3,8 +3,9 @@
 namespace Modules\Location\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Modules\Location\Entities\Area;
+use Modules\Location\Entities\Upazila;
+use Modules\Location\Entities\District;
 use App\Http\Controllers\BaseController;
 use Modules\Location\Http\Requests\LocationFormRequest;
 
@@ -19,8 +20,9 @@ class AreaController extends BaseController
     {
         if (permission('area-access')){
             $this->setPageData('Area','Area','fas fa-map-marker-alt',[['name' => 'Location'],['name'=>'Area']]);
-            $locations = DB::table('locations')->select('id','name','type')->where([['type','<>',4],['status',1]])->get();
-            return view('location::route-area.index',compact('locations'));
+            $districts = District::where(['type' => 1,'status' => 1])->get();
+            $upazilas  = Upazila::where(['type' => 2,'status' => 1])->get();
+            return view('location::area.index',compact('districts','upazilas'));
         }else{
             return $this->access_blocked();
         }
@@ -37,9 +39,6 @@ class AreaController extends BaseController
             }
             if (!empty($request->grand_parent_id)) {
                 $this->model->setGrandParentID($request->grand_parent_id);
-            }
-            if (!empty($request->grand_grand_parent_id)) {
-                $this->model->setGrandGrandParentID($request->grand_grand_parent_id);
             }
 
             $this->set_datatable_default_properties($request);//set datatable default properties
@@ -62,7 +61,6 @@ class AreaController extends BaseController
                 }
                 $row[] = $no;
                 $row[] = $value->name;
-                $row[] = $value->route->name;
                 $row[] = $value->upazila->name;
                 $row[] = $value->district->name;
                 $row[] = permission('area-edit') ? change_status($value->id,$value->status, $value->name) : STATUS_LABEL[$value->status];
@@ -173,9 +171,9 @@ class AreaController extends BaseController
         }
     }
 
-    public function route_id_wise_area_list(int $id)
+    public function upazila_id_wise_area_list(int $id)
     {
-        $routes = $this->model->route_id_wise_area_list($id);
-        return json_encode($routes);
+        $areas = $this->model->upazila_id_wise_area_list($id);
+        return json_encode($areas);
     }
 }
