@@ -80,7 +80,7 @@ class CustomerAdvance extends BaseModel
     {
         //set column sorting index table column name wise (should match with frontend table header)
 
-        $this->column_order = ['transactions.id','c.name', 'c.shop_name','c.mobile','c.warehouse_id','c.district_id','c.upazila_id','c.area_id',null,null,'transactions.voucher_date b',null,null,null];
+        $this->column_order = ['transactions.id','transactions.voucher_date','c.name', 'c.warehouse_id','c.district_id','c.upazila_id','c.area_id',null,null,null,null,null];
         
         
         $query = self::select('transactions.*','coa.id as coa_id','coa.code','c.id as customer_id','c.name as customer_name',

@@ -38,9 +38,6 @@ class CustomerAdvanceController extends BaseController
             if (!empty($request->upazila_id)) {
                 $this->model->setUpazilaID($request->upazila_id);
             }
-            if (!empty($request->route_id)) {
-                $this->model->setRouteID($request->route_id);
-            }
             if (!empty($request->area_id)) {
                 $this->model->setAreaID($request->area_id);
             }
@@ -55,6 +52,9 @@ class CustomerAdvanceController extends BaseController
             }
             if (!empty($request->end_date)) {
                 $this->model->setEndDate($request->end_date);
+            }
+            if (!empty($request->warehouse_id)) {
+                $this->model->setWarehouseID($request->district_id);
             }
 
             $this->set_datatable_default_properties($request);//set datatable default properties
@@ -82,16 +82,15 @@ class CustomerAdvanceController extends BaseController
                 $row = [];
 
                 $row[] = $no;
-                $row[] = $value->customer_name;
-                $row[] = $value->shop_name;
-                $row[] = $value->mobile;
+                $row[] = date(config('settings.date_format'),strtotime($value->created_at));
+                $row[] = $value->customer_name.'<br><b>Shop Name: </b>'.$value->shop_name.'<br><b>Mobile No.: </b>'.$value->mobile;
+                $row[] = $value->warehouse_name;
                 $row[] = $value->district_name;
                 $row[] = $value->upazila_name;
-                $row[] = $value->route_name;
                 $row[] = $value->area_name;
                 $row[] = ($value->debit != 0) ? 'Payment' : 'Receive' ;
                 $row[] = ($value->debit != 0) ? number_format($value->debit,2,'.',',') : number_format($value->credit,2,'.',',');
-                $row[] = date(config('settings.date_format'),strtotime($value->created_at));
+               
                 $row[] = $payment_method;
                 $row[] = $account->coa->name;
                 $row[] = action_button($action);//custom helper function for action button
@@ -169,8 +168,8 @@ class CustomerAdvanceController extends BaseController
                 'voucher_type'        => 'Advance',
                 'voucher_date'        => date("Y-m-d"),
                 'description'         => $note,
-                'debit'               => ($type == 'debit') ? $amount : 0,
-                'credit'              => ($type == 'credit') ? $amount : 0,
+                'debit'               => ($type == 'credit') ? $amount : 0,
+                'credit'              => ($type == 'debit') ? $amount : 0,
                 'posted'              => 1,
                 'approve'             => 1,
                 'created_by'          => auth()->user()->name,
@@ -213,8 +212,8 @@ class CustomerAdvanceController extends BaseController
                         'chart_of_account_id' => $account_id,
                         'warehouse_id'        => $warehouse_id,
                         'description'         => $note,
-                        'debit'               => ($type == 'debit') ? $amount : 0,
-                        'credit'              => ($type == 'credit') ? $amount : 0,
+                        'debit'               => ($type == 'credit') ? $amount : 0,
+                        'credit'              => ($type == 'debit') ? $amount : 0,
                         'modified_by'         => auth()->user()->name,
                         'updated_at'          => date('Y-m-d H:i:s')
                     ]);
@@ -231,7 +230,7 @@ class CustomerAdvanceController extends BaseController
     {
         if($request->ajax()){
             if(permission('customer-advance-edit')){
-                $data   = $this->model->select('transactions.*','coa.id as coa_id','coa.code','c.id as customer_id','c.district_id','c.upazila_id','c.route_id','c.area_id')
+                $data   = $this->model->select('transactions.*','coa.id as coa_id','coa.code','c.id as customer_id','c.district_id','c.upazila_id','c.area_id')
                 ->join('chart_of_accounts as coa','transactions.chart_of_account_id','=','coa.id')
                 ->join('customers as c','coa.customer_id','c.id')
                 ->where('transactions.id',$request->id)
@@ -257,7 +256,6 @@ class CustomerAdvanceController extends BaseController
                         'cheque_no'      => ($payment_method == 2) ? $account->description : '',
                         'district_id'    => $data->district_id,
                         'upazila_id'     => $data->upazila_id,
-                        'route_id'       => $data->route_id,
                         'area_id'        => $data->area_id,
                     ];
                 }

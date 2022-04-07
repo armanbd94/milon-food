@@ -40,6 +40,17 @@
                                 <input type="hidden" id="end_date" name="end_date" >
                             </div>
                         </div>
+                        @if(Auth::user()->warehouse_id)
+                        <input type="hidden" name="warehouse_id" id="warehouse_id" value="{{ Auth::user()->warehouse_id }}">
+                        @else
+                        <x-form.selectbox labelName="Warehouse" name="warehouse_id" col="col-md-4" class="selectpicker">
+                            @if (!$warehouses->isEmpty())
+                                @foreach ($warehouses as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
+                                @endforeach
+                            @endif
+                        </x-form.selectbox>
+                        @endif
 
                         <x-form.selectbox labelName="District" name="district_id" col="col-md-4" class="selectpicker" onchange="getUpazilaList(this.value,1)" >
                             @if (!$districts->isEmpty())
@@ -49,21 +60,14 @@
                             @endif
                         </x-form.selectbox>
 
-                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker" onchange="getRouteList(this.value,1)" />
-
-                        <x-form.selectbox labelName="Route" name="route_id" col="col-md-4" class="selectpicker" onchange="getAreaList(this.value,1)"/>
+                        <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker" onchange="getAreaList(this.value,1)" />
 
                         <x-form.selectbox labelName="Area" name="area_id" col="col-md-4" class="selectpicker" onchange="customer_list(this.value,1)"/>
 
                         <x-form.selectbox labelName="Customer" name="customer_id" col="col-md-4" class="selectpicker"/>
-                        
 
-                        <x-form.selectbox labelName="Advance Type" name="type" col="col-md-4" class="selectpicker">
-                            <option value="debit">Payment</option>
-                            <option value="credit">Receive</option>
-                        </x-form.selectbox>
 
-                        <div class="col-md-8">
+                        <div class="{{ Auth::user()->warehouse_id ? 'col-md-4' : 'col-md-12' }}">
                             <div style="margin-top:28px;">   
                                 <button id="btn-reset" class="btn btn-danger btn-sm btn-elevate btn-icon float-right" type="button"
                                 data-toggle="tooltip" data-theme="dark" title="Reset">
@@ -86,16 +90,14 @@
                                 <thead class="bg-primary">
                                     <tr>
                                         <th>Sl</th>
-                                        <th>Name</th>
-                                        <th>Shop Name</th>
-                                        <th>Mobile No.</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Warehouse</th>
                                         <th>District</th>
                                         <th>Upazila</th>
-                                        <th>Route</th>
                                         <th>Area</th>
                                         <th>Advance Type</th>
                                         <th>Amount</th>
-                                        <th>Date</th>
                                         <th>Payment Method</th>
                                         <th>Account Name</th>
                                         <th>Action</th>
@@ -132,6 +134,7 @@ $('.daterangepicker-filed').daterangepicker({
     }
 });
 var table;
+$("#kt_body").addClass("aside-minimize");
 $(document).ready(function(){
 
     table = $('#dataTable').DataTable({
@@ -157,10 +160,10 @@ $(document).ready(function(){
             "type": "POST",
             "data": function (data) {
                 data.upazila_id  = $("#form-filter #upazila_id").val();
-                data.route_id    = $("#form-filter #route_id").val();
+                data.district_id    = $("#form-filter #district_id").val();
                 data.area_id     = $("#form-filter #area_id").val();
                 data.customer_id = $("#form-filter #customer_id").val();
-                data.type        = $("#form-filter #type").val();
+                data.warehouse_id = $("#form-filter #warehouse_id").val();
                 data.start_date  = $("#form-filter #start_date").val();
                 data.end_date    = $("#form-filter #end_date").val();
                 data._token      = _token;
@@ -168,16 +171,16 @@ $(document).ready(function(){
         },
         "columnDefs": [
             {
-                "targets": [13],
+                "targets": [11],
                 "className": "text-center",
                 "orderable":false
             },
             {
-                "targets": [0,3,4,5,6,7,8,10,11,12],
+                "targets": [0,3,4,5,6,7,9,10],
                 "className": "text-center"
             },
             {
-                "targets": [9],
+                "targets": [8],
                 "className": "text-right"
             },
         ],
@@ -186,7 +189,6 @@ $(document).ready(function(){
             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'<'float-right'p>>>",
 
         "buttons": [
-            @if (permission('customer-report'))
             {
                 'extend':'colvis','className':'btn btn-secondary btn-sm text-white','text':'Column','columns': ':gt(0)'
             },
@@ -198,9 +200,7 @@ $(document).ready(function(){
                 "orientation": "portrait", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
-                    columns: function (index, data, node) {
-                        return table.column(index).visible();
-                    }
+                    columns: ':visible:not(:eq(11))' 
                 },
                 customize: function (win) {
                     $(win.document.body).addClass('bg-white');
@@ -218,9 +218,7 @@ $(document).ready(function(){
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
-                    columns: function (index, data, node) {
-                        return table.column(index).visible();
-                    }
+                    columns: ':visible:not(:eq(11))' 
                 }
             },
             {
@@ -230,9 +228,7 @@ $(document).ready(function(){
                 "title": "{{ $page_title }} List",
                 "filename": "{{ strtolower(str_replace(' ','-',$page_title)) }}-list",
                 "exportOptions": {
-                    columns: function (index, data, node) {
-                        return table.column(index).visible();
-                    }
+                    columns: ':visible:not(:eq(11))' 
                 }
             },
             {
@@ -244,9 +240,7 @@ $(document).ready(function(){
                 "orientation": "portrait", //portrait
                 "pageSize": "A4", //A3,A5,A6,legal,letter
                 "exportOptions": {
-                    columns: function (index, data, node) {
-                        return table.column(index).visible();
-                    }
+                    columns: ':visible:not(:eq(11))' 
                 },
                 customize: function(doc) {
                 doc.defaultStyle.fontSize = 7; //<-- set fontsize to 16 instead of 10 
@@ -254,7 +248,6 @@ $(document).ready(function(){
                 doc.pageMargins = [5,5,5,5];
             }  
             },
-            @endif
         ],
     });
 
@@ -281,7 +274,6 @@ $(document).ready(function(){
         var warehouse_id    = $('#store_or_update_form #warehouse_id option:selected').val();
         var district_id    = $('#store_or_update_form #district_id option:selected').val();
         var upazila_id    = $('#store_or_update_form #upazila_id option:selected').val();
-        var route_id    = $('#store_or_update_form #route_id option:selected').val();
         var area_id    = $('#store_or_update_form #area_id option:selected').val();
         var cheque_number = '';
         if(payment_method == 2){
@@ -301,7 +293,7 @@ $(document).ready(function(){
             type: "POST",
             data: {id:id,customer:customer,customer_coaid:customer_coaid,customer_name:customer_name,type:type,amount:amount,
                 payment_method:payment_method,account_id:account_id,cheque_number:cheque_number,warehouse_id:warehouse_id,
-                district_id:district_id,upazila_id:upazila_id,route_id:route_id,area_id:area_id,_token:_token},
+                district_id:district_id,upazila_id:upazila_id,area_id:area_id,_token:_token},
             dataType: "JSON",
             beforeSend: function(){
                 $('#save-btn').addClass('spinner spinner-white spinner-right');
@@ -370,8 +362,7 @@ $(document).ready(function(){
                         $('#store_or_update_form #warehouse_id').val(data.warehouse_id);
                         $('#store_or_update_form #district_id').val(data.district_id);
                         getUpazilaList(data.district_id,2,data.upazila_id);
-                        getRouteList(data.upazila_id,2,data.route_id);
-                        getAreaList(data.route_id,2,data.area_id);
+                        getAreaList(data.upazila_id,2,data.area_id);
                         customer_list(data.area_id,2,data.customer_id);
                         account_list(data.payment_method,data.account_id);
                         $('#store_or_update_form select#customer').each(function(){
@@ -488,37 +479,10 @@ function getUpazilaList(district_id,selector,upazila_id=''){
         },
     });
 }
-function getRouteList(upazila_id,selector,route_id=''){
-    $.ajax({
-        url:"{{ url('upazila-id-wise-route-list') }}/"+upazila_id,
-        type:"GET",
-        dataType:"JSON",
-        success:function(data){
-            html = `<option value="">Select Please</option>`;
-            $.each(data, function(key, value) {
-                html += '<option value="'+ key +'">'+ value +'</option>';
-            });
-            if(selector == 1)
-            {
-                $('#form-filter #route_id').empty();
-                $('#form-filter #route_id').append(html);
-            }else{
-                $('#store_or_update_form #route_id').empty();
-                $('#store_or_update_form #route_id').append(html);
-            }
-            $('.selectpicker').selectpicker('refresh');
-            if(route_id){
-                $('#store_or_update_form #route_id').val(route_id);
-                $('#store_or_update_form #route_id.selectpicker').selectpicker('refresh');
-            }
-      
-        },
-    });
-}
 
-function getAreaList(route_id,selector,area_id=''){
+function getAreaList(upazila_id,selector,area_id=''){
     $.ajax({
-        url:"{{ url('route-id-wise-area-list') }}/"+route_id,
+        url:"{{ url('upazila-id-wise-area-list') }}/"+upazila_id,
         type:"GET",
         dataType:"JSON",
         success:function(data){
@@ -543,14 +507,14 @@ function getAreaList(route_id,selector,area_id=''){
         },
     });
 }
+
 function showAdvanceFormModal(modal_title, btn_text) {
     $('#store_or_update_form')[0].reset();
     $('#store_or_update_form #update_id').val('');
     $('#store_or_update_form').find('.is-invalid').removeClass('is-invalid');
     $('#store_or_update_form').find('.error').remove();
-    $('#store_or_update_form #customer_id').empty();
+    $('#store_or_update_form #customer').empty();
     $('#store_or_update_form #upazila_id').empty();
-    $('#store_or_update_form #route_id').empty();
     $('#store_or_update_form #area_id').empty();
     $('#store_or_update_form #account_id').empty();
     $('#store_or_update_form .selectpicker').selectpicker('refresh');
@@ -558,6 +522,7 @@ function showAdvanceFormModal(modal_title, btn_text) {
         keyboard: false,
         backdrop: 'static',
     });
+
     $('#store_or_update_modal .modal-title').html('<i class="fas fa-plus-square text-white"></i> '+modal_title);
     $('#store_or_update_modal #save-btn').text(btn_text);
 }

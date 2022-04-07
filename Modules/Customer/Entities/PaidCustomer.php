@@ -55,8 +55,10 @@ class PaidCustomer extends BaseModel
         $this->column_order = ['c.id','c.name', 'c.shop_name','c.mobile','warehouse_id','district_id','upazila_id','area_id','c.customer_group_id',null];
         
         $query = DB::table('customers as c')
-        ->selectRaw('c.*,d.name as district_name,u.name as upazila_name,a.name as area_name,cg.group_name, ((select ifnull(sum(debit),0) from transactions where chart_of_account_id= b.id)-(select ifnull(sum(credit),0) from transactions where chart_of_account_id= b.id)) as balance')
+        ->selectRaw('c.*,d.name as district_name,u.name as upazila_name,a.name as area_name,cg.group_name,w.name as warehouse_name,
+         ((select ifnull(sum(debit),0) from transactions where chart_of_account_id= b.id)-(select ifnull(sum(credit),0) from transactions where chart_of_account_id= b.id)) as balance')
         ->leftjoin('chart_of_accounts as b', 'c.id', '=', 'b.customer_id')
+        ->join('warehouses as w','c.warehouse_id','=','w.id')
         ->join('locations as d', 'c.district_id', '=', 'd.id')
         ->join('locations as u', 'c.upazila_id', '=', 'u.id')
         ->join('locations as a', 'c.area_id', '=', 'a.id')
@@ -115,9 +117,9 @@ class PaidCustomer extends BaseModel
                 ->groupBy('c.id','b.id')
                 ->having('balance','<=',0);
                 if(auth()->user()->warehouse_id)
-        {
-            $query->where('c.warehouse_id',  auth()->user()->warehouse_id);
-        }
+                {
+                    $query->where('c.warehouse_id',  auth()->user()->warehouse_id);
+                }
                 if (!empty($this->_customer_id)) {
                     $query->where('c.id', $this->_customer_id);
                 }

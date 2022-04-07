@@ -35,9 +35,6 @@
                             @endif
                         </x-form.selectbox>
                         <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-4" class="selectpicker"
-                            onchange="getRouteList(this.value,2)"/>
-
-                        <x-form.selectbox labelName="Route" name="route_id" col="col-md-4" class="selectpicker"
                             onchange="getAreaList(this.value,2)"/>
 
                         <x-form.selectbox labelName="Area" name="area_id" col="col-md-4" class="selectpicker"
@@ -47,7 +44,7 @@
                         <x-form.selectbox labelName="Advance Type" name="type" required="required" col="col-md-4"
                             class="selectpicker">
                             <option value="debit">Payment</option>
-                            <option value="credit">Receive</option>
+                            <option value="credit" selected>Receive</option>
                         </x-form.selectbox>
                         <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-4"
                             placeholder="Enter amount" />

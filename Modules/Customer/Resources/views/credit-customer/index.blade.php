@@ -143,6 +143,7 @@
 <script src="plugins/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
 <script>
 var table;
+$("#kt_body").addClass("aside-minimize");
 $(document).ready(function(){
 
     table = $('#dataTable').DataTable({
@@ -170,7 +171,6 @@ $(document).ready(function(){
                 data.warehouse_id  = $("#form-filter #warehouse_id").val();
                 data.district_id  = $("#form-filter #district_id").val();
                 data.upazila_id  = $("#form-filter #upazila_id").val();
-                data.route_id    = $("#form-filter #route_id").val();
                 data.area_id     = $("#form-filter #area_id").val();
                 data.customer_id = $("#form-filter #customer_id").val();
                 data._token      = _token;
