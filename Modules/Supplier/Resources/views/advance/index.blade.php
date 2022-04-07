@@ -39,8 +39,8 @@
                             @endif
                         </x-form.selectbox>
                         <x-form.selectbox labelName="Advance Type" name="type" col="col-md-3" class="selectpicker">
-                            <option value="debit">Payment</option>
-                            <option value="credit">Receive</option>
+                            <option value="credit">{{ __('file.Payment') }}</option>
+                            <option value="debit">{{ __('file.Receive') }}</option>
                         </x-form.selectbox>
                         <div class="col-md-6">
                             <div style="margin-top:28px;">       

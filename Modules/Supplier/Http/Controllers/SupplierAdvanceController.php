@@ -74,7 +74,7 @@ class SupplierAdvanceController extends BaseController
                     }
                     $row[] = $no;
                     $row[] = $value->name.' - '.$value->mobile;
-                    $row[] = ($value->debit != 0) ? 'Payment' : 'Receive' ;
+                    $row[] = ($value->debit != 0) ? 'Receive' : 'Payment' ;
                     $row[] = ($value->debit != 0) ? $value->debit : $value->credit;
                     $row[] = APPROVE_STATUS_LABEL[$value->approve];
                     $row[] = date(config('settings.date_format'),strtotime($value->created_at));

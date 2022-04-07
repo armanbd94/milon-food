@@ -26,8 +26,8 @@
                         @endif
                     </x-form.selectbox>
                     <x-form.selectbox labelName="Advance Type" name="type" required="required"  col="col-md-12" class="selectpicker">
-                        <option value="debit">Payment</option>
-                        <option value="credit">Receive</option>
+                      <option value="credit" selected>{{ __('file.Payment') }}</option>
+                      <option value="debit">{{ __('file.Receive') }}</option>
                     </x-form.selectbox>
                     <x-form.textbox labelName="Amount" name="amount" required="required" col="col-md-12" placeholder="Enter amount"/>
                     <x-form.selectbox labelName="Payment Method" name="payment_method" required="required"  col="col-md-12" class="selectpicker">
