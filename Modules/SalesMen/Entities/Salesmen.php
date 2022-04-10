@@ -1,9 +1,9 @@
 <?php
 namespace Modules\SalesMen\Entities;
 
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Modules\Location\Entities\Route;
 use Modules\Location\Entities\Upazila;
 use Modules\Location\Entities\District;
 use Modules\Setting\Entities\Warehouse;
@@ -11,13 +11,14 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Modules\Account\Entities\Transaction;
 use Modules\Account\Entities\ChartOfAccount;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Modules\Location\Entities\Area;
 
 class Salesmen extends Authenticatable implements JWTSubject
 {
     protected $table= 'salesmen';
 
-    protected $fillable = [ 'name', 'username', 'phone','email', 'avatar', 'password',
-     'warehouse_id', 'district_id', 'upazila_id','nid_no','monthly_target_value', 'cpr','address', 'status', 'created_by', 'modified_by'];
+    protected $fillable = [ 'name', 'username', 'phone','additional_phone','email', 'avatar', 'password',
+     'warehouse_id','asm_id', 'district_id', 'upazila_id','status', 'created_by', 'modified_by'];
 
     protected $hidden = [
         'password',
@@ -33,6 +34,10 @@ class Salesmen extends Authenticatable implements JWTSubject
         ->where('voucher_type','PR Balance')->withDefault(['debit' => '']);
     }
 
+    public function asm()
+    {
+        return $this->belongsTo(User::class,'asm_id','id');
+    }
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class,'warehouse_id','id');
@@ -45,10 +50,10 @@ class Salesmen extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Upazila::class,'upazila_id','id');
     }
-    public function routes()
+    public function areas()
     {
-        return $this->belongsToMany(Route::class,'sales_men_daily_routes','salesmen_id','route_id','id','id')
-        ->withPivot('id','day')            
+        return $this->belongsToMany(Area::class,'salesmen_areas','salesmen_id','area_id','id','id')
+        ->withPivot('id')            
         ->withTimestamps();
     }
 
@@ -120,10 +125,9 @@ class Salesmen extends Authenticatable implements JWTSubject
     }
 
     protected $_name;
-    protected $_username;
     protected $_phone;
-    protected $_email;
     protected $_warehouse_id;
+    protected $_asm_id;
     protected $_district_id;
     protected $_upazila_id;
     protected $_status;
@@ -133,22 +137,16 @@ class Salesmen extends Authenticatable implements JWTSubject
         $this->_name = $name;
     }
 
-    public function setUsername($username)
-    {
-        $this->_username = $username;
-    }
-
     public function setPhone($phone)
     {
         $this->_phone = $phone;
     }
 
-    public function setEmail($email)
+    public function setASMID($asm_id)
     {
-        $this->_email = $email;
+        $this->_asm_id = $asm_id;
     }
-
-    public function setASMID($warehouse_id)
+    public function setWarehouseID($warehouse_id)
     {
         $this->_warehouse_id = $warehouse_id;
     }
@@ -170,28 +168,31 @@ class Salesmen extends Authenticatable implements JWTSubject
 
     private function get_datatable_query()
     { 
-        if (permission('sales-representative-bulk-delete')){
-            $this->column_order = [null,'id','id','name','username','monthly_target_value', 'cpr','phone','warehouse_id','district_id','upazila_id','email','status',null];
+        if (permission('sr-bulk-delete')){
+            $this->column_order = [null,'id','id','name','username','warehouse_id','asm_id','district_id','upazila_id','status',null];
         }else{
-            $this->column_order = ['id','id','name','username','monthly_target_value', 'cpr','phone','warehouse_id','district_id','upazila_id','email','status',null];
+            $this->column_order = ['id','id','name','username','warehouse_id','asm_id','district_id','upazila_id','status',null];
         }
 
-        $query = self::with('district','upazila');
+        $query = self::with('district','upazila','warehouse','asm');
+        if(auth()->user()->warehouse_id)
+        {
+            $query->where('warehouse_id',  auth()->user()->warehouse_id);
+        }
 
         if (!empty($this->name)) {
             $query->where('name', 'like', '%' . $this->name . '%');
         }
-        if (!empty($this->username)) {
-            $query->where('username', 'like', '%' . $this->username . '%');
-        }
+
         if (!empty($this->phone)) {
             $query->where('phone', 'like', '%' . $this->phone . '%');
         }
-        if (!empty($this->email)) {
-            $query->where('email', 'like', '%' . $this->email . '%');
-        }
+
         if (!empty($this->_warehouse_id)) {
             $query->where('warehouse_id', $this->_warehouse_id );
+        }
+        if (!empty($this->_asm_id)) {
+            $query->where('asm_id', $this->_asm_id );
         }
         if (!empty($this->_district_id)) {
             $query->where('district_id', $this->_district_id );

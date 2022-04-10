@@ -203,7 +203,7 @@ class BaseController extends Controller
                 return 50201;
                 break;
             case 'default_supplier':
-                return 5020101;
+                return 5020100001;
                 break;
             case 'employee_ledger':
                 return 50202;

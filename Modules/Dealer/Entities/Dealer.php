@@ -74,7 +74,6 @@ class Dealer extends Authenticatable
     *******************************************/
     protected $order = ['id' => 'desc'];
     protected $column_order;
-
     protected $orderValue;
     protected $dirValue;
     protected $startVlaue;
@@ -168,6 +167,7 @@ class Dealer extends Authenticatable
         
         
         $query = self::with('district:id,name','upazila:id,name','warehouse:id,name');
+        
         if(auth()->user()->warehouse_id)
         {
             $query->where('warehouse_id',  auth()->user()->warehouse_id);

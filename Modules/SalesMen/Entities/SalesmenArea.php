@@ -3,25 +3,25 @@
 namespace Modules\SalesMen\Entities;
 
 use App\Models\BaseModel;
-use Modules\Location\Entities\Route;
+use Modules\Location\Entities\Area;
 use Modules\SalesMen\Entities\Salesmen;
 
-class SalesMenDailyRoute extends BaseModel
+class SalesmenArea extends BaseModel
 {
-    protected $table = 'sales_men_daily_routes';
+    protected $table = 'salesmen_areas';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['salesmen_id','route_id','day'];
+    protected $fillable = ['salesmen_id','area_id'];
 
     public function salesmen()
     {
         return $this->belongsTo(Salesmen::class);
     }
-    public function route()
+    public function area()
     {
-        return $this->belongsTo(Route::class);
+        return $this->belongsTo(Area::class);
     }
 }

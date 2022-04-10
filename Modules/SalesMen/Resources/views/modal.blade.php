@@ -53,10 +53,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <x-form.textbox labelName="NID No." name="nid_no" col="col-md-6" placeholder="Enter NID no."/>
-                            <x-form.textbox labelName="Monthly Target Value" name="monthly_target_value" col="col-md-6" placeholder="Enter monthly target value"/>
-                            <x-form.textbox labelName="Commission Percentage(%)" name="cpr" col="col-md-6" placeholder="Enter commission percentage"/>
                             <x-form.textbox labelName="Previous Balance" name="previous_balance" col="col-md-6 pbalance d-none" class="text-right" placeholder="Previous balalnce"/>
+                            <x-form.selectbox labelName="ASM" name="asm_id" required="required" col="col-md-6" class="selectpicker">
+                                @if (!$asms->isEmpty())
+                                @foreach ($asms as $asm)
+                                    <option value="{{ $asm->id }}">{{ $asm->name.' - '.$asm->phone }}</option>
+                                @endforeach 
+                                @endif
+                            </x-form.selectbox>
                             <x-form.selectbox labelName="Warehouse" name="warehouse_id" required="required" col="col-md-6" class="selectpicker" onchange="setDistrictData();getUpazilaList(2);">
                                 @if (!$warehouses->isEmpty())
                                 @foreach ($warehouses as $warehouse)
@@ -69,13 +73,11 @@
                                 <input type="text" class="form-control" name="district_name" id="district_name">
                                 <input type="hidden" class="form-control" name="district_id" id="district_id">
                             </div>
-                            <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-6" class="selectpicker" onchange="upazilaRouteList(this.value)"/>
-                            <x-form.textarea labelName="Address" name="address" col="col-md-6" placeholder="Enter address"/>
-                            <div class="col-md-12 d-none route-section">
-                                <table class="table table-bordered" id="route-list">
+                            <x-form.selectbox labelName="Upazila" name="upazila_id" col="col-md-6" required="required" class="selectpicker" onchange="upazilaAreaList(this.value)"/>
+                            <div class="col-md-12 d-none area-section">
+                                <table class="table table-bordered" id="area-list">
                                     <thead class="bg-primary">
-                                        <th>Day</th>
-                                        <th>Route</th>
+                                        <th>Area</th>
                                     </thead>
                                     <tbody></tbody>
                                 </table>

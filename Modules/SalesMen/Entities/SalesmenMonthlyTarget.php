@@ -2,17 +2,12 @@
 
 namespace Modules\SalesMen\Entities;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\BaseModel;
 
-class SalesmenMonthlyTarget extends Model
+class SalesmenMonthlyTarget extends BaseModel
 {
-    use HasFactory;
-
-    protected $fillable = [];
+    protected $fillable = [
+        'mtcode','salesmen_id','target_value','achieved_value','commission_rate','commission_earned','target_month','closing_date','created_by','modified_by'
+    ];
     
-    protected static function newFactory()
-    {
-        return \Modules\SalesMen\Database\factories\SalesmenMonthlyTargetFactory::new();
-    }
 }

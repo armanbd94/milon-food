@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSalesMenDailyRoutesTable extends Migration
+class CreateSalesmenAreasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateSalesMenDailyRoutesTable extends Migration
      */
     public function up()
     {
-        Schema::create('sales_men_daily_routes', function (Blueprint $table) {
+        Schema::create('salesmen_areas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('salesmen_id');
             $table->foreign('salesmen_id')->references('id')->on('salesmen');
@@ -30,6 +30,6 @@ class CreateSalesMenDailyRoutesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sales_men_daily_routes');
+        Schema::dropIfExists('salesmen_areas');
     }
 }
