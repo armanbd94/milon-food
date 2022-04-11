@@ -6,16 +6,12 @@ use Exception;
 use App\Traits\UploadAble;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Location\Entities\Area;
-use Modules\Location\Entities\Route;
 use Modules\SalesMen\Entities\Salesmen;
 use Modules\Setting\Entities\Warehouse;
 use App\Http\Controllers\BaseController;
 use App\Models\User;
 use Modules\Account\Entities\Transaction;
-use Modules\SalesMen\Entities\SalesmenArea;
 use Modules\Account\Entities\ChartOfAccount;
-use Modules\SalesMen\Entities\SalesMenDailyRoute;
 use Modules\SalesMen\Http\Requests\SalesMenFormRequest;
 
 class SalesMenController extends BaseController
@@ -29,6 +25,7 @@ class SalesMenController extends BaseController
     public function index()
     {
         if(permission('sr-access')){
+            // dd(date('m-t-Y'));
             $this->setPageData('Sales Representative','Sales Representative','fas fa-user-secret',[['name' => 'Sales Representative']]);
             $warehouses      = Warehouse::with('district')->where('status',1)->get();
             $asms = User::where('role_id',44)->get();

@@ -22,7 +22,8 @@ class CreateSalesmenMonthlyTargetsTable extends Migration
             $table->double('achieved_value')->nullable();
             $table->float('commission_rate');
             $table->float('commission_earned');
-            $table->integer('target_month');
+            $table->date('start_date')->index('start_date');
+            $table->date('end_date')->index('end_date');
             $table->date('closing_date');
             $table->string('created_by')->nullable();
             $table->string('modified_by')->nullable();

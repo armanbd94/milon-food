@@ -33,4 +33,16 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('salesmen-ledger', 'SalesmenLedgerController@index')->name('salesmen.ledger');
     Route::post('salesmen-ledger-datatable-data', 'SalesmenLedgerController@get_datatable_data')->name('sales.representative.ledger.datatable.data');
+
+    Route::get('sr-monthly-target', 'SalesmanMonthlyTargetController@index')->name('sr.monthly.target');
+    Route::group(['prefix' => 'sr-monthly-target', 'as'=>'sr.monthly.target.'], function () {
+        Route::post('datatable-data', 'SalesmanMonthlyTargetController@get_datatable_data')->name('datatable.data');
+        Route::post('store', 'SalesmanMonthlyTargetController@store')->name('store');
+        Route::post('update', 'SalesmanMonthlyTargetController@update')->name('update');
+        Route::get('add', 'SalesmanMonthlyTargetController@create')->name('add');
+        Route::post('edit', 'SalesmanMonthlyTargetController@edit')->name('edit');
+        Route::post('delete', 'SalesmanMonthlyTargetController@delete')->name('delete');
+        Route::post('bulk-delete', 'SalesmanMonthlyTargetController@bulk_delete')->name('bulk.delete');
+        
+    });
 });
